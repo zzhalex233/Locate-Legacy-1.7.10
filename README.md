@@ -1,6 +1,6 @@
-# Forge Mod for Minecraft 1.7.10
-
-[![](https://jitpack.io/v/GTNewHorizons/ExampleMod1.7.10.svg)](https://jitpack.io/#GTNewHorizons/ExampleMod1.7.10)
+# Locate command for 1.7.10 Forge
+based on GTNH Team "ExampleMod1.7.10"
+https://github.com/GTNewHorizons/ExampleMod1.7.10
 
 An mod for Minecraft 1.7.10
 add "/locate" command to older version.
@@ -12,7 +12,7 @@ support villian minecraft struct only
 e.g.village,stronghold
 
 "locate biome <<name>name>" for locating biome
-technically support mods biome
+technically support other mods' biome
 
 command support TAB key auto completion
 
