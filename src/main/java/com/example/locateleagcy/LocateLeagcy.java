@@ -6,7 +6,7 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 
-@Mod(modid = LocateLeagcy.MODID, name = "Locate Leagcy", version = "1.0.0")
+@Mod(modid = LocateLeagcy.MODID, name = "Locate Leagcy", version = "1.0.9")
 public class LocateLeagcy {
 
     public static final String MODID = "locateleagcy";

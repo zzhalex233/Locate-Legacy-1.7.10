@@ -72,7 +72,6 @@ public class StructureLocator {
         int maxRadius = 128;
 
         try {
-
             if (canSpawn(gen, startChunkX, startChunkZ)) {
                 return toBlockCoords(startChunkX, startChunkZ);
             }
