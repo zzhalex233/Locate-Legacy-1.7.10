@@ -1,18 +1,23 @@
 # Forge Mod for Minecraft 1.7.10
 
 [![](https://jitpack.io/v/GTNewHorizons/ExampleMod1.7.10.svg)](https://jitpack.io/#GTNewHorizons/ExampleMod1.7.10)
-[![](https://github.com/GTNewHorizons/ExampleMod1.7.10/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/GTNewHorizons/ExampleMod1.7.10/actions/workflows/build-and-test.yml)
 
-An mod for Minecraft 1.7.10 that add "/locate" command to older version.
+An mod for Minecraft 1.7.10
+add "/locate" command to older version.
 
 ### Features
 
-"/locate structure <name>" for locating structrue
+"/locate structure <<name>name>" ,for locating structrue
 support villian minecraft struct only
+e.g.village,stronghold
 
-"locate biome <name>" for locating biome
+"locate biome <<name>name>" for locating biome
 technically support mods biome
+
+command support TAB key auto completion
+
+**warning:due to the version being too old, fully implementing the structure locating features is unrealistic. You might have to face the situation which the located address has no structure. This is because the locating algorithm is based on searching chunks that are avaliable for the structure to locate**
 
 ### Download
 
-download suitable mod in release
+download mod in releases

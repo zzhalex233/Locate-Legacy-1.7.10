@@ -7,9 +7,6 @@ import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.ChunkProviderGenerate;
 import net.minecraft.world.gen.structure.MapGenStructure;
 
-/**
- * 从当前世界真实 ChunkProvider 中获取结构生成器
- */
 public class StructureResolver {
 
     public static MapGenStructure getStructure(World world, String name) {

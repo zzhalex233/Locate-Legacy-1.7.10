@@ -20,9 +20,6 @@ public class StructureLocator {
 
     private static boolean initialized = false;
 
-    // =============================
-    // 初始化
-    // =============================
     private static void init(World world) {
 
         if (initialized) return;
@@ -62,9 +59,6 @@ public class StructureLocator {
         return (MapGenStructure) f.get(obj);
     }
 
-    // =============================
-    // 主 locate 方法
-    // =============================
     public static int[] locate(World world, String type, int blockX, int blockZ) {
 
         init(world);
@@ -75,16 +69,14 @@ public class StructureLocator {
         int startChunkX = blockX >> 4;
         int startChunkZ = blockZ >> 4;
 
-        int maxRadius = 128; // 足够大但安全
+        int maxRadius = 128;
 
         try {
 
-            // 半径0
             if (canSpawn(gen, startChunkX, startChunkZ)) {
                 return toBlockCoords(startChunkX, startChunkZ);
             }
 
-            // 环形扫描
             for (int radius = 1; radius <= maxRadius; radius++) {
 
                 for (int dx = -radius; dx <= radius; dx++) {

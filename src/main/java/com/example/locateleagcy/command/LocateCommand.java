@@ -41,9 +41,7 @@ public class LocateCommand extends CommandBase {
 
         String mode = args[0];
 
-        // =========================
         // STRUCTURE
-        // =========================
         if (mode.equalsIgnoreCase("structure")) {
 
             if (args.length != 2) {
@@ -66,12 +64,9 @@ public class LocateCommand extends CommandBase {
             return;
         }
 
-        // =========================
         // BIOME
-        // =========================
         if (mode.equalsIgnoreCase("biome")) {
 
-            // 支持 biome 名带空格
             StringBuilder sb = new StringBuilder();
             for (int i = 1; i < args.length; i++) {
                 if (i > 1) sb.append(" ");
@@ -103,9 +98,6 @@ public class LocateCommand extends CommandBase {
                 "§e用法:\n" + "§6/locate structure <village|stronghold|mineshaft|temple>\n" + "§6/locate biome <name>"));
     }
 
-    /**
-     * 发送可点击传送坐标
-     */
     private void sendTeleportMessage(EntityPlayer player, int x, int y, int z) {
 
         ChatComponentText prefix = new ChatComponentText("§a找到坐标: ");
@@ -114,10 +106,8 @@ public class LocateCommand extends CommandBase {
 
         ChatStyle style = new ChatStyle();
 
-        // 点击执行 /tp
         style.setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tp " + x + " " + y + " " + z));
 
-        // 悬浮提示
         style.setChatHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ChatComponentText("§7点击传送")));
 
         coords.setChatStyle(style);
@@ -127,24 +117,18 @@ public class LocateCommand extends CommandBase {
         player.addChatMessage(prefix);
     }
 
-    // =========================
-    // TAB 补全
-    // =========================
     @Override
     public List addTabCompletionOptions(ICommandSender sender, String[] args) {
 
-        // 第一层
         if (args.length == 1) {
             return getListOfStringsMatchingLastWord(args, "structure", "biome");
         }
 
-        // structure 第二层
         if (args.length == 2 && args[0].equalsIgnoreCase("structure")) {
 
             return getListOfStringsMatchingLastWord(args, "village", "stronghold", "mineshaft", "temple");
         }
 
-        // biome 自动补全（兼容所有模组）
         if (args.length >= 2 && args[0].equalsIgnoreCase("biome")) {
 
             List<String> biomeNames = new ArrayList<String>();

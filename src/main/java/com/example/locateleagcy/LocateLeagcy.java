@@ -14,7 +14,6 @@ public class LocateLeagcy {
     @Mod.EventHandler
     public void serverStarting(FMLServerStartingEvent event) {
 
-        // 注册 locate 指令
         event.registerServerCommand(new LocateCommand());
     }
 

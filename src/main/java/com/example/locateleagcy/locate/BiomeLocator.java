@@ -9,9 +9,6 @@ import net.minecraft.world.biome.BiomeGenBase;
 
 public class BiomeLocator {
 
-    // =============================
-    // 主 locate 方法
-    // =============================
     public static int[] locate(World world, String biomeName, int blockX, int blockZ) {
 
         BiomeGenBase target = findBiomeByName(biomeName);
@@ -25,12 +22,7 @@ public class BiomeLocator {
         try {
 
             ChunkPosition pos = world.getWorldChunkManager()
-                .findBiomePosition(
-                    blockX,
-                    blockZ,
-                    4000, // 搜索半径（block单位）
-                    searchList,
-                    world.rand);
+                .findBiomePosition(blockX, blockZ, 4000, searchList, world.rand);
 
             if (pos == null) return null;
 
@@ -42,9 +34,6 @@ public class BiomeLocator {
         }
     }
 
-    // =============================
-    // 查找 biome（模糊匹配）
-    // =============================
     private static BiomeGenBase findBiomeByName(String name) {
 
         BiomeGenBase[] biomes = BiomeGenBase.getBiomeGenArray();
