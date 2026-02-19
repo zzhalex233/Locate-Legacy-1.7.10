@@ -1,4 +1,6 @@
 # Forge Mod for Minecraft 1.7.10
+based on GTNH Team "ExampleMod1.7.10"
+https://github.com/GTNewHorizons/ExampleMod1.7.10
 
 [![](https://jitpack.io/v/GTNewHorizons/ExampleMod1.7.10.svg)](https://jitpack.io/#GTNewHorizons/ExampleMod1.7.10)
 
