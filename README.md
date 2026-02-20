@@ -24,10 +24,15 @@ A simple utility mod for **Minecraft 1.7.10** that adds a `/locate` command simi
 - Works with **vanilla and modded biomes**
 - Compatible with mods such as **Biomes O’ Plenty**
 
+### Safe Teleport
+- Clickable coordinates in chat
+- Automatically finds a **safe landing position**
+- If target is ocean/liquid, will search for **nearest land**
+- Nether / no-sky dimensions avoid bedrock ceiling
+
 ### Other
 - `/locate cancel` — cancel a running locate task
 - Tab-completion support
-- Clickable coordinates in chat (click to teleport)
 
 ---
 
