@@ -2,69 +2,59 @@ package com.example.locateleagcy.locate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
-import net.minecraft.world.ChunkPosition;
-import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 
+import com.example.locateleagcy.locate.LocateTaskManager.BiomeMatch;
+
+/**
+ * 群系工具：
+ * - 支持模糊匹配（contains）
+ * - 支持精确匹配（equalsIgnoreCase）
+ * - 给 tab 补全提供列表
+ */
 public class BiomeLocator {
 
-    private static final int STEP_RADIUS = 1024;
-    private static final int MAX_RADIUS = 8192;
+    public static BiomeMatch resolveBiome(String name) {
 
-    public static int[] locate(World world, String biomeName, int blockX, int blockZ) {
+        if (name == null) return null;
 
-        BiomeGenBase target = findBiomeByName(biomeName);
-        if (target == null) return null;
+        String q = name.trim();
+        if (q.isEmpty()) return null;
 
-        // 1️⃣ 当前位置检测
-        BiomeGenBase current = world.getBiomeGenForCoords(blockX, blockZ);
+        BiomeGenBase[] biomes = BiomeGenBase.getBiomeGenArray();
 
-        if (current == target) {
-            return new int[] { blockX, blockZ };
+        // 1) 精确匹配优先
+        for (BiomeGenBase b : biomes) {
+            if (b == null) continue;
+            if (b.biomeName.equalsIgnoreCase(q)) {
+                return new BiomeMatch(b, b.biomeName);
+            }
         }
 
-        List<BiomeGenBase> searchList = new ArrayList<BiomeGenBase>();
-        searchList.add(target);
-
-        Random random = new Random(world.getSeed());
-
-        try {
-
-            // 2️⃣ 逐步扩大半径
-            for (int radius = STEP_RADIUS; radius <= MAX_RADIUS; radius += STEP_RADIUS) {
-
-                ChunkPosition pos = world.getWorldChunkManager()
-                    .findBiomePosition(blockX, blockZ, radius, searchList, random);
-
-                if (pos != null) {
-
-                    return new int[] { pos.chunkPosX, pos.chunkPosZ };
-                }
+        // 2) 模糊 contains
+        String low = q.toLowerCase();
+        for (BiomeGenBase b : biomes) {
+            if (b == null) continue;
+            if (b.biomeName.toLowerCase()
+                .contains(low)) {
+                return new BiomeMatch(b, b.biomeName);
             }
-
-        } catch (Throwable t) {
-            t.printStackTrace();
         }
 
         return null;
     }
 
-    private static BiomeGenBase findBiomeByName(String name) {
+    public static List<String> allBiomeNames() {
+
+        List<String> names = new ArrayList<String>();
 
         BiomeGenBase[] biomes = BiomeGenBase.getBiomeGenArray();
-
-        for (BiomeGenBase biome : biomes) {
-
-            if (biome == null) continue;
-
-            if (biome.biomeName.equalsIgnoreCase(name)) return biome;
-
-            if (biome.biomeName.toLowerCase()
-                .contains(name.toLowerCase())) return biome;
+        for (BiomeGenBase b : biomes) {
+            if (b == null) continue;
+            names.add(b.biomeName);
         }
 
-        return null;
+        return names;
     }
 }
