@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.BiomeGenBase;
 
 import com.example.locateleagcy.TickHandler;
 
@@ -15,7 +16,7 @@ public class LocateTaskManager {
 
     private static final Map<String, CacheEntry> CACHE = new ConcurrentHashMap<String, CacheEntry>();
 
-    private static final long CACHE_TTL_TICKS = 20L * 30L; // 30s
+    private static final long CACHE_TTL_TICKS = 20L * 30L;
 
     private static final int CHECKS_PER_TICK = 200;
 
@@ -30,16 +31,23 @@ public class LocateTaskManager {
             return false;
         }
 
-        // 缓存命中：秒回
+        // ✅ 结构是否支持：看该维度能不能找到对应 MapGenStructure
+        // 找不到就直接拒绝（不看 dimensionId）
+        if (!com.example.locateleagcy.locate.StructureLocator.isStructureSupportedInWorld(player.worldObj, type)) {
+            player.addChatMessage(new ChatComponentText("§c当前维度没有可搜索结构：§e" + type));
+            return false;
+        }
+
         int cx = ((int) player.posX) >> 4;
         int cz = ((int) player.posZ) >> 4;
+
         String cacheKey = makeCacheKey(player.worldObj, "structure", type, cx, cz);
 
         CacheEntry cached = CACHE.get(cacheKey);
         if (cached != null && !cached.isExpired()) {
             int[] r = cached.result;
-            player.addChatMessage(new ChatComponentText("§7(缓存命中)"));
-            LocateMessageUtil.sendTeleportMessage(player, r[0], 64, r[1]);
+            // player.addChatMessage(new ChatComponentText("§7缓存命中"));
+            LocateMessageUtil.sendTeleportMessage(player, r[0], r[1]);
             return true;
         }
 
@@ -48,14 +56,12 @@ public class LocateTaskManager {
 
         player.addChatMessage(new ChatComponentText("§7正在扫描最近结构...（可用 §e/locate cancel §7取消）"));
 
-        // 神必提示
         if (isWorldBusyAroundPlayer(player)) {
             task.notBeforeTick = TickHandler.getServerTicks() + DELAY_TICKS_IF_BUSY;
             player.addChatMessage(new ChatComponentText("§e检测到区块正在生成/加载，已自动延迟 2 秒执行以避免卡顿。"));
         }
 
         task.generateMoreCandidatesAsync();
-
         return true;
     }
 
@@ -68,26 +74,49 @@ public class LocateTaskManager {
             return false;
         }
 
-        BiomeMatch match = BiomeLocator.resolveBiome(biomeName);
-        if (match == null) {
-            player.addChatMessage(new ChatComponentText("§c未知群系: §e" + biomeName));
+        World world = player.worldObj;
+        int dim = world.provider.dimensionId;
+
+        BiomeGenBase target = null;
+        String displayName = null;
+
+        if (dim == 0) {
+            // ✅ 主世界：恢复以前体验（全局表匹配）
+            target = com.example.locateleagcy.locate.BiomeLocator.findBiomeByNameGlobal(biomeName);
+            if (target != null) displayName = target.biomeName;
+        } else {
+            // ✅ 非主世界：只允许“已加载区块真实出现过”的 biome
+            target = com.example.locateleagcy.locate.BiomeLocator.findBiomeByNameObserved(world, player, biomeName);
+            if (target != null) displayName = target.biomeName;
+        }
+
+        if (target == null || displayName == null) {
+            player.addChatMessage(new ChatComponentText("§c当前维度没有该群系：§e" + biomeName));
+            player.addChatMessage(new ChatComponentText("§7提示：先在本维度走动加载一些区块，再按 Tab 查看可用群系。"));
+            return false;
+        }
+
+        // ✅ 非主世界再硬校验一次：必须“观察到过”，否则拒绝（防永不返回）
+        if (dim != 0 && !com.example.locateleagcy.locate.BiomeLocator.isBiomeObserved(world, player, target)) {
+            player.addChatMessage(new ChatComponentText("§c当前维度没有该群系：§e" + target.biomeName));
             return false;
         }
 
         int cx = ((int) player.posX) >> 4;
         int cz = ((int) player.posZ) >> 4;
-        String cacheKey = makeCacheKey(player.worldObj, "biome", match.displayName, cx, cz);
+
+        String cacheKey = makeCacheKey(world, "biome", displayName, cx, cz);
 
         CacheEntry cached = CACHE.get(cacheKey);
         if (cached != null && !cached.isExpired()) {
             int[] r = cached.result;
             player.addChatMessage(new ChatComponentText("§7(缓存命中)"));
-            LocateMessageUtil.sendTeleportMessage(player, r[0], 64, r[1]);
+            LocateMessageUtil.sendTeleportMessage(player, r[0], r[1]);
             return true;
         }
 
-        LocateTask task = new LocateTask(player, player.worldObj, LocateTask.Mode.BIOME, match.displayName, cacheKey);
-        task.biomeTarget = match.biome;
+        LocateTask task = new LocateTask(player, world, LocateTask.Mode.BIOME, displayName, cacheKey);
+        task.biomeTarget = target;
 
         TASKS.put(keyPlayer, task);
 
@@ -99,7 +128,6 @@ public class LocateTaskManager {
         }
 
         task.generateMoreCandidatesAsync();
-
         return true;
     }
 
@@ -128,12 +156,10 @@ public class LocateTaskManager {
                 continue;
             }
 
-            // 延迟启动
             if (TickHandler.getServerTicks() < task.notBeforeTick) {
                 continue;
             }
 
-            // 如果候选点太少，异步再补一批
             if (task.candidates.size() < 2000 && !task.generating) {
                 task.generateMoreCandidatesAsync();
             }
@@ -157,7 +183,6 @@ public class LocateTaskManager {
                 }
             }
 
-            // 若候选已耗尽且已经生成到较大半径仍找不到：结束
             if (task.candidates.isEmpty() && task.spiralRadius > task.maxSpiralRadius && !task.generating) {
                 failTask(entry.getKey(), task);
             }
@@ -167,7 +192,6 @@ public class LocateTaskManager {
     private static void finishTask(String playerKey, final LocateTask task, final int[] result) {
 
         TASKS.remove(playerKey);
-
         CACHE.put(task.cacheKey, new CacheEntry(result));
 
         TickHandler.runOnMainThread(new Runnable() {
@@ -176,8 +200,7 @@ public class LocateTaskManager {
             public void run() {
                 if (task.playerRef == null) return;
                 EntityPlayer p = task.playerRef;
-
-                LocateMessageUtil.sendTeleportMessage(p, result[0], 64, result[1]);
+                LocateMessageUtil.sendTeleportMessage(p, result[0], result[1]);
             }
         });
     }
@@ -221,6 +244,40 @@ public class LocateTaskManager {
         return world.provider.dimensionId + "|" + mode + "|" + query.toLowerCase() + "|" + bx + "|" + bz;
     }
 
+    private static boolean isValidStructureType(String type) {
+        return "village".equals(type) || "stronghold".equals(type) || "mineshaft".equals(type) || "temple".equals(type);
+    }
+
+    /**
+     * 主世界用：全局表宽松解析（恢复你“以前”的体验）
+     */
+    private static BiomeGenBase findBiomeByNameGlobal(String name) {
+
+        if (name == null) return null;
+
+        String q = name.trim();
+        if (q.isEmpty()) return null;
+
+        BiomeGenBase[] biomes = BiomeGenBase.getBiomeGenArray();
+
+        for (BiomeGenBase biome : biomes) {
+            if (biome == null || biome.biomeName == null) continue;
+
+            if (biome.biomeName.equalsIgnoreCase(q)) return biome;
+        }
+
+        String low = q.toLowerCase();
+
+        for (BiomeGenBase biome : biomes) {
+            if (biome == null || biome.biomeName == null) continue;
+
+            if (biome.biomeName.toLowerCase()
+                .contains(low)) return biome;
+        }
+
+        return null;
+    }
+
     private static final class CacheEntry {
 
         final int[] result;
@@ -233,17 +290,6 @@ public class LocateTaskManager {
 
         boolean isExpired() {
             return TickHandler.getServerTicks() > expireAtTick;
-        }
-    }
-
-    public static final class BiomeMatch {
-
-        public final net.minecraft.world.biome.BiomeGenBase biome;
-        public final String displayName;
-
-        public BiomeMatch(net.minecraft.world.biome.BiomeGenBase biome, String displayName) {
-            this.biome = biome;
-            this.displayName = displayName;
         }
     }
 }

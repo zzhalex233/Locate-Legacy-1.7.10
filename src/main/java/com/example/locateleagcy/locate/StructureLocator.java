@@ -48,7 +48,7 @@ public class StructureLocator {
         return found;
     }
 
-    private static MapGenStructure findGenerator(World world, String type) {
+    public static MapGenStructure findGenerator(World world, String type) {
 
         try {
             if (!(world.getChunkProvider() instanceof ChunkProviderServer)) return null;
@@ -106,5 +106,9 @@ public class StructureLocator {
         } catch (Throwable t) {
             t.printStackTrace();
         }
+    }
+
+    public static boolean isStructureSupportedInWorld(World world, String type) {
+        return findGenerator(world, type) != null;
     }
 }

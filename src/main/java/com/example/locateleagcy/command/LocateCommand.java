@@ -1,13 +1,12 @@
 package com.example.locateleagcy.command;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChatComponentText;
-import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.World;
 
 import com.example.locateleagcy.locate.LocateTaskManager;
 
@@ -29,6 +28,11 @@ public class LocateCommand extends CommandBase {
         if (!(sender instanceof EntityPlayer)) return;
 
         EntityPlayer player = (EntityPlayer) sender;
+        World world = player.worldObj;
+
+        // ✅ 输出维度信息
+        player.addChatMessage(
+            new ChatComponentText("§7" + player.getCommandSenderName() + "所在的维度：§e" + world.provider.dimensionId));
 
         if (args.length < 1) {
             sendUsage(player);
@@ -37,7 +41,6 @@ public class LocateCommand extends CommandBase {
 
         String mode = args[0];
 
-        // /locate cancel
         if (mode.equalsIgnoreCase("cancel")) {
             LocateTaskManager.cancel(player);
             return;
@@ -70,7 +73,6 @@ public class LocateCommand extends CommandBase {
             }
 
             String biomeName = joinArgs(args, 1);
-
             LocateTaskManager.startBiome(player, biomeName);
             return;
         }
@@ -92,11 +94,11 @@ public class LocateCommand extends CommandBase {
     }
 
     private void sendUsage(EntityPlayer player) {
-        player.addChatMessage(
-            new ChatComponentText(
-                "§e用法:\n" + "§6/locate structure <village|stronghold|mineshaft|temple>\n"
-                    + "§6/locate biome <name>\n"
-                    + "§6/locate cancel"));
+
+        player.addChatMessage(new ChatComponentText("§e用法:"));
+        player.addChatMessage(new ChatComponentText("§6/locate structure <village|stronghold|mineshaft|temple>"));
+        player.addChatMessage(new ChatComponentText("§6/locate biome <name>"));
+        player.addChatMessage(new ChatComponentText("§6/locate cancel"));
     }
 
     @Override
@@ -107,20 +109,51 @@ public class LocateCommand extends CommandBase {
         }
 
         if (args.length == 2 && args[0].equalsIgnoreCase("structure")) {
+
+            if (sender instanceof EntityPlayer) {
+                EntityPlayer p = (EntityPlayer) sender;
+
+                // 如果当前维度一个都找不到，就不给 village/stronghold
+                boolean any = com.example.locateleagcy.locate.StructureLocator
+                    .isStructureSupportedInWorld(p.worldObj, "village")
+                    || com.example.locateleagcy.locate.StructureLocator
+                        .isStructureSupportedInWorld(p.worldObj, "stronghold")
+                    || com.example.locateleagcy.locate.StructureLocator
+                        .isStructureSupportedInWorld(p.worldObj, "mineshaft")
+                    || com.example.locateleagcy.locate.StructureLocator
+                        .isStructureSupportedInWorld(p.worldObj, "temple");
+
+                if (!any) {
+                    return getListOfStringsMatchingLastWord(args, "当前维度没有可搜索结构");
+                }
+            }
+
             return getListOfStringsMatchingLastWord(args, "village", "stronghold", "mineshaft", "temple");
         }
 
+        // ✅ biome 的 tab 补全：按当前维度给列表
         if (args.length >= 2 && args[0].equalsIgnoreCase("biome")) {
 
-            List<String> biomeNames = new ArrayList<String>();
-            BiomeGenBase[] biomes = BiomeGenBase.getBiomeGenArray();
+            if (sender instanceof EntityPlayer) {
+                EntityPlayer p = (EntityPlayer) sender;
+                int dim = p.worldObj.provider.dimensionId;
 
-            for (BiomeGenBase b : biomes) {
-                if (b == null) continue;
-                biomeNames.add(b.biomeName);
+                List<String> names;
+
+                if (dim == 0) {
+                    names = com.example.locateleagcy.locate.BiomeLocator.getAllBiomeNames();
+                } else {
+                    names = com.example.locateleagcy.locate.BiomeLocator.getObservedBiomeNames(p.worldObj, p);
+                }
+
+                if (names == null || names.isEmpty()) {
+                    return getListOfStringsMatchingLastWord(args, "当前维度暂未发现可补全群系");
+                }
+
+                return getListOfStringsMatchingLastWord(args, names.toArray(new String[0]));
             }
 
-            return getListOfStringsMatchingLastWord(args, biomeNames.toArray(new String[0]));
+            return null;
         }
 
         return null;
