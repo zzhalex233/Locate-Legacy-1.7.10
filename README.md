@@ -1,26 +1,44 @@
-# Locate command for 1.7.10 Forge
+# Locate Command for Minecraft 1.7.10 (Forge)
 
-based on GTNH Team "ExampleMod1.7.10"
+Based on **GTNH Team – ExampleMod1.7.10**  
 https://github.com/GTNewHorizons/ExampleMod1.7.10
 
-An mod for Minecraft 1.7.10
-add "/locate" command to older version.
+A simple utility mod for **Minecraft 1.7.10** that adds a `/locate` command similar to newer versions.
 
-### Features
+---
 
-"/locate structure <<name>name>" ,for locating structrue
-support villian minecraft struct only
-e.g.village,stronghold
+## Features
 
-"locate biome <<name>name>" for locating biome
-technically support other mods' biome
+### Locate structures
 
-command support TAB key auto completion
+`/locate structure <name>`
 
-**warning:due to the version being too old, fully implementing the structure locating features is unrealistic. You might have to face the situation which the located address has no structure. This is because the locating algorithm is based on searching chunks that are avaliable for the structure to locate**
+- Supports vanilla structures  
+  (`village`, `stronghold`, `mineshaft`, `temple`)
+- Searches the nearest valid structure location
 
-advise:please wait untill chunks been loaded,else running the command will be super lag
+### Locate biomes
 
-### Download
+`/locate biome <name>`
 
-download mod in releases
+- Works with **vanilla and modded biomes**
+- Compatible with mods such as **Biomes O’ Plenty**
+
+### Other
+- `/locate cancel` — cancel a running locate task
+- Tab-completion support
+- Clickable coordinates in chat (click to teleport)
+
+---
+
+## Notes
+
+> **Warning**  
+> Due to limitations of Minecraft 1.7.10, structure locating is based on structure spawn logic rather than guaranteed generation.  
+> In some cases, the located coordinates may not contain a generated structure.
+
+---
+
+## Download
+
+Download the mod from the **Releases** page.
