@@ -1,4 +1,5 @@
 # Locate command for 1.7.10 Forge
+
 based on GTNH Team "ExampleMod1.7.10"
 https://github.com/GTNewHorizons/ExampleMod1.7.10
 
@@ -17,6 +18,8 @@ technically support other mods' biome
 command support TAB key auto completion
 
 **warning:due to the version being too old, fully implementing the structure locating features is unrealistic. You might have to face the situation which the located address has no structure. This is because the locating algorithm is based on searching chunks that are avaliable for the structure to locate**
+
+advise:please wait untill chunks been loaded,else running the command will be super lag
 
 ### Download
 
