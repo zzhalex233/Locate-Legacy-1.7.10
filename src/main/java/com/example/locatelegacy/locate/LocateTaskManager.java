@@ -1,4 +1,4 @@
-package com.example.locateleagcy.locate;
+package com.example.locatelegacy.locate;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -8,7 +8,7 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 
-import com.example.locateleagcy.TickHandler;
+import com.example.locatelegacy.TickHandler;
 
 public class LocateTaskManager {
 
@@ -31,8 +31,7 @@ public class LocateTaskManager {
             return false;
         }
 
-
-        if (!com.example.locateleagcy.locate.StructureLocator.isStructureSupportedInWorld(player.worldObj, type)) {
+        if (!com.example.locatelegacy.locate.StructureLocator.isStructureSupportedInWorld(player.worldObj, type)) {
             player.addChatMessage(new ChatComponentText("§c当前维度没有可搜索结构：§e" + type));
             return false;
         }
@@ -79,10 +78,10 @@ public class LocateTaskManager {
         String displayName = null;
 
         if (dim == 0) {
-            target = com.example.locateleagcy.locate.BiomeLocator.findBiomeByNameGlobal(biomeName);
+            target = com.example.locatelegacy.locate.BiomeLocator.findBiomeByNameGlobal(biomeName);
             if (target != null) displayName = target.biomeName;
         } else {
-            target = com.example.locateleagcy.locate.BiomeLocator.findBiomeByNameObserved(world, player, biomeName);
+            target = com.example.locatelegacy.locate.BiomeLocator.findBiomeByNameObserved(world, player, biomeName);
             if (target != null) displayName = target.biomeName;
         }
 
@@ -91,7 +90,7 @@ public class LocateTaskManager {
             player.addChatMessage(new ChatComponentText("§7提示：先在本维度走动加载一些区块，再按 Tab 查看可用群系。"));
             return false;
         }
-        if (dim != 0 && !com.example.locateleagcy.locate.BiomeLocator.isBiomeObserved(world, player, target)) {
+        if (dim != 0 && !com.example.locatelegacy.locate.BiomeLocator.isBiomeObserved(world, player, target)) {
             player.addChatMessage(new ChatComponentText("§c当前维度没有该群系：§e" + target.biomeName));
             return false;
         }
@@ -241,7 +240,6 @@ public class LocateTaskManager {
     private static boolean isValidStructureType(String type) {
         return "village".equals(type) || "stronghold".equals(type) || "mineshaft".equals(type) || "temple".equals(type);
     }
-
 
     private static BiomeGenBase findBiomeByNameGlobal(String name) {
 

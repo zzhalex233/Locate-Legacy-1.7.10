@@ -1,4 +1,4 @@
-package com.example.locateleagcy.locate;
+package com.example.locatelegacy.locate;
 
 import java.util.ArrayList;
 import java.util.HashSet;

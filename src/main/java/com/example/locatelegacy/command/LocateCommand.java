@@ -1,4 +1,4 @@
-package com.example.locateleagcy.command;
+package com.example.locatelegacy.command;
 
 import java.util.List;
 
@@ -8,7 +8,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
 
-import com.example.locateleagcy.locate.LocateTaskManager;
+import com.example.locatelegacy.locate.LocateTaskManager;
 
 public class LocateCommand extends CommandBase {
 
@@ -112,13 +112,13 @@ public class LocateCommand extends CommandBase {
             if (sender instanceof EntityPlayer) {
                 EntityPlayer p = (EntityPlayer) sender;
 
-                boolean any = com.example.locateleagcy.locate.StructureLocator
+                boolean any = com.example.locatelegacy.locate.StructureLocator
                     .isStructureSupportedInWorld(p.worldObj, "village")
-                    || com.example.locateleagcy.locate.StructureLocator
+                    || com.example.locatelegacy.locate.StructureLocator
                         .isStructureSupportedInWorld(p.worldObj, "stronghold")
-                    || com.example.locateleagcy.locate.StructureLocator
+                    || com.example.locatelegacy.locate.StructureLocator
                         .isStructureSupportedInWorld(p.worldObj, "mineshaft")
-                    || com.example.locateleagcy.locate.StructureLocator
+                    || com.example.locatelegacy.locate.StructureLocator
                         .isStructureSupportedInWorld(p.worldObj, "temple");
 
                 if (!any) {
@@ -138,9 +138,9 @@ public class LocateCommand extends CommandBase {
                 List<String> names;
 
                 if (dim == 0) {
-                    names = com.example.locateleagcy.locate.BiomeLocator.getAllBiomeNames();
+                    names = com.example.locatelegacy.locate.BiomeLocator.getAllBiomeNames();
                 } else {
-                    names = com.example.locateleagcy.locate.BiomeLocator.getObservedBiomeNames(p.worldObj, p);
+                    names = com.example.locatelegacy.locate.BiomeLocator.getObservedBiomeNames(p.worldObj, p);
                 }
 
                 if (names == null || names.isEmpty()) {

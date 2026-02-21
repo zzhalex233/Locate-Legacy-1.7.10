@@ -1,5 +1,4 @@
-package com.example.locateleagcy.locate;
-
+package com.example.locatelegacy.locate;
 
 public class LocateMessageUtil {
 
@@ -7,7 +6,7 @@ public class LocateMessageUtil {
 
         net.minecraft.world.World world = player.worldObj;
 
-        int[] tp = com.example.locateleagcy.locate.SafeTeleport.findSafeTeleport(world, x, z, player);
+        int[] tp = com.example.locatelegacy.locate.SafeTeleport.findSafeTeleport(world, x, z, player);
 
         int tx = tp[0];
         int ty = tp[1];

@@ -1,8 +1,8 @@
-package com.example.locateleagcy;
+package com.example.locatelegacy;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import com.example.locateleagcy.locate.LocateTaskManager;
+import com.example.locatelegacy.locate.LocateTaskManager;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;

@@ -1,6 +1,6 @@
-package com.example.locateleagcy;
+package com.example.locatelegacy;
 
-import com.example.locateleagcy.command.LocateCommand;
+import com.example.locatelegacy.command.LocateCommand;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
@@ -8,10 +8,10 @@ import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 
-@Mod(modid = LocateLeagcy.MODID, name = "Locate Leagcy", version = "2.3SaveTeleport")
-public class LocateLeagcy {
+@Mod(modid = LocateLegacy.MODID, name = "Locate Legacy", version = "2.3.1")
+public class LocateLegacy {
 
-    public static final String MODID = "locateleagcy";
+    public static final String MODID = "locatelegacy";
 
     @EventHandler
     public void init(FMLInitializationEvent event) {

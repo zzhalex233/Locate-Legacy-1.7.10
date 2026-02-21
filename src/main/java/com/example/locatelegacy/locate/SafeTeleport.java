@@ -1,9 +1,8 @@
-package com.example.locateleagcy.locate;
+package com.example.locatelegacy.locate;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
-
 
 public class SafeTeleport {
 
