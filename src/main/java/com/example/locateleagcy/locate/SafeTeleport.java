@@ -4,31 +4,19 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 
-/**
- * 计算安全传送坐标（Forge 1.7.10 可用）
- *
- * 保留旧行为：
- * - ocean/流体上方会自动找最近陆地（会调整 X/Z）
- *
- * 修复：
- * - 下界/无天空维度不再使用 getTopSolidOrLiquidBlock（避免顶层基岩/基岩层）
- * 改为在 y≈64 附近寻找“地表型落点”的 baseY
- */
+
 public class SafeTeleport {
 
     private SafeTeleport() {}
 
-    /**
-     * 返回安全传送坐标 {x, y, z}
-     */
     public static int[] findSafeTeleport(World world, int x, int z, EntityPlayer player) {
 
         int baseY = getBaseY(world, x, z, player);
 
-        // 判断目标点是否“在流体上”（顶层是液体 或 脚下是液体）
+        // 判断目标点是否“在流体上”
         if (isLiquidTopOrBelow(world, x, baseY, z)) {
 
-            // 在附近找最近陆地（限制半径，避免太重）
+            // 在附近找最近陆地
             int[] land = findNearestLand(world, x, z, player, 48);
             if (land != null) {
                 int lx = land[0];
@@ -46,11 +34,6 @@ public class SafeTeleport {
         return new int[] { x, y, z };
     }
 
-    /**
-     * ✅ 关键修复点：获取 baseY
-     * - 主世界/有天空维度：沿用 getTopSolidOrLiquidBlock（保留你之前成功的行为）
-     * - 无天空维度（下界/部分模组维度）：改为 preferY=64 附近找“地表型落点”
-     */
     private static int getBaseY(World world, int x, int z, EntityPlayer player) {
 
         if (world == null) return 64;
@@ -63,14 +46,12 @@ public class SafeTeleport {
 
             int prefer = 64;
             if (player != null && player.worldObj == world) {
-                // 如果玩家当前在这个维度，可稍微靠近玩家高度，但仍以 64 为主
                 int py = (int) Math.floor(player.posY);
                 if (py > 20 && py < 110) prefer = py;
             }
 
             prefer = clamp(prefer, minY, maxY);
 
-            // 在 prefer 附近找一个“像地表”的站点：能站、且不要在流体上
             int range = 48;
             for (int d = 0; d <= range; d++) {
 
@@ -81,7 +62,6 @@ public class SafeTeleport {
                 if (y2 >= minY && isGoodBase(world, x, y2, z)) return y2;
             }
 
-            // 找不到就返回 prefer（后续 findSafeY 会再修正）
             return prefer;
         }
 
@@ -90,11 +70,6 @@ public class SafeTeleport {
         return clamp(top, minY, maxY);
     }
 
-    /**
-     * “适合作为 baseY 的位置”：
-     * - 当前位置或脚下不是液体（避免水面/岩浆面）
-     * - 并且附近能找到站立点（用 isSafeStand 判断）
-     */
     private static boolean isGoodBase(World world, int x, int y, int z) {
 
         int yy = clamp(y, 1, world.getActualHeight() - 2);
@@ -109,9 +84,6 @@ public class SafeTeleport {
         return down != -1;
     }
 
-    /**
-     * 找到 (x,z) 附近的安全 y（不改 x/z）
-     */
     private static int findSafeY(World world, int x, int z, EntityPlayer player) {
 
         int y = getBaseY(world, x, z, player);
@@ -127,9 +99,6 @@ public class SafeTeleport {
         return clamp(y, 10, world.getActualHeight() - 2);
     }
 
-    /**
-     * 在附近找“最近陆地” (返回 {x,z})
-     */
     private static int[] findNearestLand(World world, int x, int z, EntityPlayer player, int maxRadiusBlocks) {
 
         for (int r = 1; r <= maxRadiusBlocks; r++) {
@@ -158,9 +127,6 @@ public class SafeTeleport {
         return null;
     }
 
-    /**
-     * 判定一个 (x,z) 是否有“陆地安全落点”
-     */
     private static boolean isLandSafe(World world, int x, int z, EntityPlayer player) {
 
         int y = getBaseY(world, x, z, player);
@@ -176,9 +142,6 @@ public class SafeTeleport {
         return down != -1;
     }
 
-    /**
-     * 判断：目标点的“顶层位置”或“脚下”是否为液体
-     */
     private static boolean isLiquidTopOrBelow(World world, int x, int y, int z) {
 
         // y 可能落在空气/雪层等，做一个小范围容错检查，避免 ocean 漏判
@@ -195,7 +158,6 @@ public class SafeTeleport {
             }
         }
 
-        // 再额外检查脚下更深一格（有些情况下 top-1 不是液体但 top-2 是液体）
         Block below2 = world.getBlock(x, y - 2, z);
         if (below2 != null && below2.getMaterial() != null
             && below2.getMaterial()
@@ -229,9 +191,6 @@ public class SafeTeleport {
         return -1;
     }
 
-    /**
-     * 判断玩家站在 (x, y, z) 是否安全
-     */
     private static boolean isSafeStand(World world, int x, int y, int z) {
 
         if (y < 2 || y >= world.getActualHeight() - 1) return false;

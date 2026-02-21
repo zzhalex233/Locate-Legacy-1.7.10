@@ -31,8 +31,7 @@ public class LocateTaskManager {
             return false;
         }
 
-        // ✅ 结构是否支持：看该维度能不能找到对应 MapGenStructure
-        // 找不到就直接拒绝（不看 dimensionId）
+
         if (!com.example.locateleagcy.locate.StructureLocator.isStructureSupportedInWorld(player.worldObj, type)) {
             player.addChatMessage(new ChatComponentText("§c当前维度没有可搜索结构：§e" + type));
             return false;
@@ -46,7 +45,6 @@ public class LocateTaskManager {
         CacheEntry cached = CACHE.get(cacheKey);
         if (cached != null && !cached.isExpired()) {
             int[] r = cached.result;
-            // player.addChatMessage(new ChatComponentText("§7缓存命中"));
             LocateMessageUtil.sendTeleportMessage(player, r[0], r[1]);
             return true;
         }
@@ -81,11 +79,9 @@ public class LocateTaskManager {
         String displayName = null;
 
         if (dim == 0) {
-            // ✅ 主世界：恢复以前体验（全局表匹配）
             target = com.example.locateleagcy.locate.BiomeLocator.findBiomeByNameGlobal(biomeName);
             if (target != null) displayName = target.biomeName;
         } else {
-            // ✅ 非主世界：只允许“已加载区块真实出现过”的 biome
             target = com.example.locateleagcy.locate.BiomeLocator.findBiomeByNameObserved(world, player, biomeName);
             if (target != null) displayName = target.biomeName;
         }
@@ -95,8 +91,6 @@ public class LocateTaskManager {
             player.addChatMessage(new ChatComponentText("§7提示：先在本维度走动加载一些区块，再按 Tab 查看可用群系。"));
             return false;
         }
-
-        // ✅ 非主世界再硬校验一次：必须“观察到过”，否则拒绝（防永不返回）
         if (dim != 0 && !com.example.locateleagcy.locate.BiomeLocator.isBiomeObserved(world, player, target)) {
             player.addChatMessage(new ChatComponentText("§c当前维度没有该群系：§e" + target.biomeName));
             return false;
@@ -248,9 +242,7 @@ public class LocateTaskManager {
         return "village".equals(type) || "stronghold".equals(type) || "mineshaft".equals(type) || "temple".equals(type);
     }
 
-    /**
-     * 主世界用：全局表宽松解析（恢复你“以前”的体验）
-     */
+
     private static BiomeGenBase findBiomeByNameGlobal(String name) {
 
         if (name == null) return null;

@@ -30,7 +30,6 @@ public class LocateCommand extends CommandBase {
         EntityPlayer player = (EntityPlayer) sender;
         World world = player.worldObj;
 
-        // ✅ 输出维度信息
         player.addChatMessage(
             new ChatComponentText("§7" + player.getCommandSenderName() + "所在的维度：§e" + world.provider.dimensionId));
 
@@ -113,7 +112,6 @@ public class LocateCommand extends CommandBase {
             if (sender instanceof EntityPlayer) {
                 EntityPlayer p = (EntityPlayer) sender;
 
-                // 如果当前维度一个都找不到，就不给 village/stronghold
                 boolean any = com.example.locateleagcy.locate.StructureLocator
                     .isStructureSupportedInWorld(p.worldObj, "village")
                     || com.example.locateleagcy.locate.StructureLocator
@@ -131,7 +129,6 @@ public class LocateCommand extends CommandBase {
             return getListOfStringsMatchingLastWord(args, "village", "stronghold", "mineshaft", "temple");
         }
 
-        // ✅ biome 的 tab 补全：按当前维度给列表
         if (args.length >= 2 && args[0].equalsIgnoreCase("biome")) {
 
             if (sender instanceof EntityPlayer) {
