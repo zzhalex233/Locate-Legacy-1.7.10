@@ -12,7 +12,6 @@ public class SafeTeleport {
 
         int baseY = getBaseY(world, x, z, player);
 
-        // 判断目标点是否“在流体上”
         if (isLiquidTopOrBelow(world, x, baseY, z)) {
 
             // 在附近找最近陆地
@@ -24,7 +23,6 @@ public class SafeTeleport {
                 return new int[] { lx, ly, lz };
             }
 
-            // 找不到陆地就退化为原点安全 y
             int fallbackY = findSafeY(world, x, z, player);
             return new int[] { x, fallbackY, z };
         }
@@ -40,7 +38,6 @@ public class SafeTeleport {
         int minY = 1;
         int maxY = world.getActualHeight() - 2;
 
-        // 下界/无天空：不要最高点算法
         if (world.provider != null && world.provider.hasNoSky) {
 
             int prefer = 64;
@@ -64,7 +61,6 @@ public class SafeTeleport {
             return prefer;
         }
 
-        // 有天空维度：沿用旧逻辑
         int top = world.getTopSolidOrLiquidBlock(x, z);
         return clamp(top, minY, maxY);
     }
@@ -75,7 +71,6 @@ public class SafeTeleport {
 
         if (isLiquidTopOrBelow(world, x, yy, z)) return false;
 
-        // 允许稍微上下挪动一点点，找到可站点
         int up = searchUp(world, x, yy, z, 8);
         if (up != -1) return true;
 
@@ -87,11 +82,9 @@ public class SafeTeleport {
 
         int y = getBaseY(world, x, z, player);
 
-        // 先向上找
         int up = searchUp(world, x, y, z, 32);
         if (up != -1) return up;
 
-        // 再向下找
         int down = searchDown(world, x, y, z, 48);
         if (down != -1) return down;
 
@@ -143,7 +136,6 @@ public class SafeTeleport {
 
     private static boolean isLiquidTopOrBelow(World world, int x, int y, int z) {
 
-        // y 可能落在空气/雪层等，做一个小范围容错检查，避免 ocean 漏判
         for (int dy = -2; dy <= 2; dy++) {
             int yy = y + dy;
 

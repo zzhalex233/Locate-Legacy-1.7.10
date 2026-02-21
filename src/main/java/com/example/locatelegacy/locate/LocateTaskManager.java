@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 
@@ -27,12 +27,12 @@ public class LocateTaskManager {
         String keyPlayer = player.getCommandSenderName();
 
         if (TASKS.containsKey(keyPlayer)) {
-            player.addChatMessage(new ChatComponentText("§c你已经有一个 locate 正在运行，输入 §e/locate cancel §c取消。"));
+            player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.task_running"));
             return false;
         }
 
         if (!com.example.locatelegacy.locate.StructureLocator.isStructureSupportedInWorld(player.worldObj, type)) {
-            player.addChatMessage(new ChatComponentText("§c当前维度没有可搜索结构：§e" + type));
+            player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.no_structures_in_dimension", type));
             return false;
         }
 
@@ -51,11 +51,11 @@ public class LocateTaskManager {
         LocateTask task = new LocateTask(player, player.worldObj, LocateTask.Mode.STRUCTURE, type, cacheKey);
         TASKS.put(keyPlayer, task);
 
-        player.addChatMessage(new ChatComponentText("§7正在扫描最近结构...（可用 §e/locate cancel §7取消）"));
+        player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.scanning_structure"));
 
         if (isWorldBusyAroundPlayer(player)) {
             task.notBeforeTick = TickHandler.getServerTicks() + DELAY_TICKS_IF_BUSY;
-            player.addChatMessage(new ChatComponentText("§e检测到区块正在生成/加载，已自动延迟 2 秒执行以避免卡顿。"));
+            player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.delayed_busy"));
         }
 
         task.generateMoreCandidatesAsync();
@@ -67,7 +67,7 @@ public class LocateTaskManager {
         String keyPlayer = player.getCommandSenderName();
 
         if (TASKS.containsKey(keyPlayer)) {
-            player.addChatMessage(new ChatComponentText("§c你已经有一个 locate 正在运行，输入 §e/locate cancel §c取消。"));
+            player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.task_running"));
             return false;
         }
 
@@ -86,12 +86,13 @@ public class LocateTaskManager {
         }
 
         if (target == null || displayName == null) {
-            player.addChatMessage(new ChatComponentText("§c当前维度没有该群系：§e" + biomeName));
-            player.addChatMessage(new ChatComponentText("§7提示：先在本维度走动加载一些区块，再按 Tab 查看可用群系。"));
+            player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.no_biome_in_dimension", biomeName));
+            player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.biome_hint"));
             return false;
         }
         if (dim != 0 && !com.example.locatelegacy.locate.BiomeLocator.isBiomeObserved(world, player, target)) {
-            player.addChatMessage(new ChatComponentText("§c当前维度没有该群系：§e" + target.biomeName));
+            player.addChatMessage(
+                new ChatComponentTranslation("locatelegacy.msg.no_biome_in_dimension", target.biomeName));
             return false;
         }
 
@@ -103,7 +104,7 @@ public class LocateTaskManager {
         CacheEntry cached = CACHE.get(cacheKey);
         if (cached != null && !cached.isExpired()) {
             int[] r = cached.result;
-            player.addChatMessage(new ChatComponentText("§7(缓存命中)"));
+            player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.cache_hit"));
             LocateMessageUtil.sendTeleportMessage(player, r[0], r[1]);
             return true;
         }
@@ -113,11 +114,11 @@ public class LocateTaskManager {
 
         TASKS.put(keyPlayer, task);
 
-        player.addChatMessage(new ChatComponentText("§7正在扫描最近生物群系...（可用 §e/locate cancel §7取消）"));
+        player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.scanning_biome"));
 
         if (isWorldBusyAroundPlayer(player)) {
             task.notBeforeTick = TickHandler.getServerTicks() + DELAY_TICKS_IF_BUSY;
-            player.addChatMessage(new ChatComponentText("§e检测到区块正在生成/加载，已自动延迟 2 秒执行以避免卡顿。"));
+            player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.delayed_busy"));
         }
 
         task.generateMoreCandidatesAsync();
@@ -131,9 +132,9 @@ public class LocateTaskManager {
 
         if (t != null) {
             t.cancelled = true;
-            player.addChatMessage(new ChatComponentText("§c已取消 locate。"));
+            player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.cancelled"));
         } else {
-            player.addChatMessage(new ChatComponentText("§7没有正在运行的 locate。"));
+            player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.no_task"));
         }
     }
 
@@ -207,7 +208,7 @@ public class LocateTaskManager {
             @Override
             public void run() {
                 if (task.playerRef == null) return;
-                task.playerRef.addChatMessage(new ChatComponentText("§c未找到目标（建议扩大探索范围或稍后再试）"));
+                task.playerRef.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.not_found"));
             }
         });
     }
@@ -235,37 +236,6 @@ public class LocateTaskManager {
         int bz = chunkZ >> 3;
 
         return world.provider.dimensionId + "|" + mode + "|" + query.toLowerCase() + "|" + bx + "|" + bz;
-    }
-
-    private static boolean isValidStructureType(String type) {
-        return "village".equals(type) || "stronghold".equals(type) || "mineshaft".equals(type) || "temple".equals(type);
-    }
-
-    private static BiomeGenBase findBiomeByNameGlobal(String name) {
-
-        if (name == null) return null;
-
-        String q = name.trim();
-        if (q.isEmpty()) return null;
-
-        BiomeGenBase[] biomes = BiomeGenBase.getBiomeGenArray();
-
-        for (BiomeGenBase biome : biomes) {
-            if (biome == null || biome.biomeName == null) continue;
-
-            if (biome.biomeName.equalsIgnoreCase(q)) return biome;
-        }
-
-        String low = q.toLowerCase();
-
-        for (BiomeGenBase biome : biomes) {
-            if (biome == null || biome.biomeName == null) continue;
-
-            if (biome.biomeName.toLowerCase()
-                .contains(low)) return biome;
-        }
-
-        return null;
     }
 
     private static final class CacheEntry {

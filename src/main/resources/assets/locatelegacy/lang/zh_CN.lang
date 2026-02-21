@@ -1,0 +1,27 @@
+locatelegacy.msg.dimension=§7%s所在的维度：§e%s
+
+locatelegacy.usage.title=§e用法:
+locatelegacy.usage.structure=§6/locate structure <village|stronghold|mineshaft|temple>
+locatelegacy.usage.biome=§6/locate biome <name>
+locatelegacy.usage.cancel=§6/locate cancel
+
+locatelegacy.msg.unknown_structure=§c未知结构类型: §e%s
+
+locatelegacy.msg.task_running=§c你已经有一个 locate 正在运行，输入 §e/locate cancel §c取消。
+locatelegacy.msg.no_structures_in_dimension=§c当前维度没有可搜索结构：§e%s
+locatelegacy.msg.scanning_structure=§7正在扫描最近结构...（可用 §e/locate cancel §7取消）
+locatelegacy.msg.delayed_busy=§e检测到区块正在生成/加载，已自动延迟 2 秒执行以避免卡顿。
+
+locatelegacy.msg.no_biome_in_dimension=§c当前维度没有该群系：§e%s
+locatelegacy.msg.biome_hint=§7提示：先在本维度走动加载一些区块，再按 Tab 查看可用群系。
+
+locatelegacy.msg.cache_hit=§7(缓存命中)
+locatelegacy.msg.scanning_biome=§7正在扫描最近生物群系...（可用 §e/locate cancel §7取消）
+
+locatelegacy.msg.cancelled=§c已取消 locate。
+locatelegacy.msg.no_task=§7没有正在运行的 locate。
+locatelegacy.msg.not_found=§c未找到目标（建议扩大探索范围或稍后再试）
+
+locatelegacy.msg.found_prefix=§a找到坐标: 
+locatelegacy.msg.click_to_tp=§7点击传送（自动安全落点）
+locatelegacy.msg.adjusted_to_land=§7(已自动调整到最近陆地)

@@ -47,3 +47,7 @@ A simple utility mod for **Minecraft 1.7.10** that adds a `/locate` command simi
 ## Download
 
 Download the mod from the **Releases** page.
+
+## Localization
+
+Already support English and Chinese in v2.3.2

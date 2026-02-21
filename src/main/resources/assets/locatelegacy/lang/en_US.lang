@@ -1,0 +1,27 @@
+locatelegacy.msg.dimension=§7%s is in dimension: §e%s
+
+locatelegacy.usage.title=§eUsage:
+locatelegacy.usage.structure=§6/locate structure <village|stronghold|mineshaft|temple>
+locatelegacy.usage.biome=§6/locate biome <name>
+locatelegacy.usage.cancel=§6/locate cancel
+
+locatelegacy.msg.unknown_structure=§cUnknown structure type: §e%s
+
+locatelegacy.msg.task_running=§cA locate task is already running. Use §e/locate cancel §cto stop it.
+locatelegacy.msg.no_structures_in_dimension=§cNo searchable structure in this dimension: §e%s
+locatelegacy.msg.scanning_structure=§7Scanning nearest structure... (§e/locate cancel§7 to cancel)
+locatelegacy.msg.delayed_busy=§eChunks are generating/loading. Delayed by 2 seconds to avoid lag.
+
+locatelegacy.msg.no_biome_in_dimension=§cThis biome does not exist in this dimension: §e%s
+locatelegacy.msg.biome_hint=§7Tip: walk around to load some chunks, then press Tab to see biomes.
+
+locatelegacy.msg.cache_hit=§7(Cache hit)
+locatelegacy.msg.scanning_biome=§7Scanning nearest biome... (§e/locate cancel§7 to cancel)
+
+locatelegacy.msg.cancelled=§cLocate cancelled.
+locatelegacy.msg.no_task=§7No locate task is running.
+locatelegacy.msg.not_found=§cTarget not found (try a larger range or try again later)
+
+locatelegacy.msg.found_prefix=§aFound: 
+locatelegacy.msg.click_to_tp=§7Click to teleport (safe landing)
+locatelegacy.msg.adjusted_to_land=§7(Adjusted to nearest land)

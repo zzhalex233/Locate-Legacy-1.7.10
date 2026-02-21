@@ -5,7 +5,7 @@ import java.util.List;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.world.World;
 
 import com.example.locatelegacy.locate.LocateTaskManager;
@@ -31,7 +31,10 @@ public class LocateCommand extends CommandBase {
         World world = player.worldObj;
 
         player.addChatMessage(
-            new ChatComponentText("§7" + player.getCommandSenderName() + "所在的维度：§e" + world.provider.dimensionId));
+            new ChatComponentTranslation(
+                "locatelegacy.msg.dimension",
+                player.getCommandSenderName(),
+                world.provider.dimensionId));
 
         if (args.length < 1) {
             sendUsage(player);
@@ -55,7 +58,7 @@ public class LocateCommand extends CommandBase {
             String type = args[1].toLowerCase();
 
             if (!isValidStructureType(type)) {
-                player.addChatMessage(new ChatComponentText("§c未知结构类型: §e" + type));
+                player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.unknown_structure", type));
                 sendUsage(player);
                 return;
             }
@@ -94,10 +97,10 @@ public class LocateCommand extends CommandBase {
 
     private void sendUsage(EntityPlayer player) {
 
-        player.addChatMessage(new ChatComponentText("§e用法:"));
-        player.addChatMessage(new ChatComponentText("§6/locate structure <village|stronghold|mineshaft|temple>"));
-        player.addChatMessage(new ChatComponentText("§6/locate biome <name>"));
-        player.addChatMessage(new ChatComponentText("§6/locate cancel"));
+        player.addChatMessage(new ChatComponentTranslation("locatelegacy.usage.title"));
+        player.addChatMessage(new ChatComponentTranslation("locatelegacy.usage.structure"));
+        player.addChatMessage(new ChatComponentTranslation("locatelegacy.usage.biome"));
+        player.addChatMessage(new ChatComponentTranslation("locatelegacy.usage.cancel"));
     }
 
     @Override
@@ -122,6 +125,7 @@ public class LocateCommand extends CommandBase {
                         .isStructureSupportedInWorld(p.worldObj, "temple");
 
                 if (!any) {
+                    // Tab 返回的是字符串列表，这里就别做本地化了
                     return getListOfStringsMatchingLastWord(args, "当前维度没有可搜索结构");
                 }
             }
