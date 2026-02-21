@@ -23,5 +23,7 @@ locatelegacy.msg.no_task=§7没有正在运行的 locate。
 locatelegacy.msg.not_found=§c未找到目标（建议扩大探索范围或稍后再试）
 
 locatelegacy.msg.found_prefix=§a找到坐标: 
-locatelegacy.msg.click_to_tp=§7点击传送（自动安全落点）
 locatelegacy.msg.adjusted_to_land=§7(已自动调整到最近陆地)
+
+locatelegacy.msg.distance=§7距离：§e%s 格
+locatelegacy.msg.click_to_tp=§7点击传送

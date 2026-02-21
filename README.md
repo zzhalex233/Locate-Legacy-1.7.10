@@ -33,6 +33,11 @@ A simple utility mod for **Minecraft 1.7.10** that adds a `/locate` command simi
 ### Other
 - `/locate cancel` — cancel a running locate task
 - Tab-completion support
+- Config `.minecraft/config/LocateLegacy.cfg` for whether could click to teleport and more...
+- Display the distance to the target in the chat box
+
+### Environment Compatible
+- tested in GTNH2.8.4: locating village and mod's biome has perfectly performed
 
 ---
 
@@ -40,7 +45,7 @@ A simple utility mod for **Minecraft 1.7.10** that adds a `/locate` command simi
 
 > **Warning**  
 > Due to limitations of Minecraft 1.7.10, structure locating is based on structure spawn logic rather than guaranteed generation.  
-> In some cases, the located coordinates may not contain a generated structure.
+> In some cases, the located coordinates may not contain a generated structure. ps:v2.3 later, this situation is less possible
 
 ---
 

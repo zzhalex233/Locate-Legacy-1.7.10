@@ -23,5 +23,7 @@ locatelegacy.msg.no_task=§7No locate task is running.
 locatelegacy.msg.not_found=§cTarget not found (try a larger range or try again later)
 
 locatelegacy.msg.found_prefix=§aFound: 
-locatelegacy.msg.click_to_tp=§7Click to teleport (safe landing)
 locatelegacy.msg.adjusted_to_land=§7(Adjusted to nearest land)
+
+locatelegacy.msg.distance=§7Distance: §e%s blocks
+locatelegacy.msg.click_to_tp=§7Click to teleport
