@@ -6,7 +6,7 @@
 		"description": "backporting locate command for structures and biomes,compatible with mod's biomes",
 		"version": "${modVersion}",
 		"mcversion": "${minecraftVersion}",
-		"url": "https://github.com/zzhalex233/Locate-Leagcy-1.7.10",
+		"url": "https://github.com/zzhalex233/Locate-Legacy-1.7.10",
 		"updateUrl": "",
 		"authorList": ["zzhalex233"],
 		"credits": "",
