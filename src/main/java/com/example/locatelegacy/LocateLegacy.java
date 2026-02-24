@@ -12,7 +12,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 
-@Mod(modid = LocateLegacy.MODID, name = "Locate Legacy", version = "2.4")
+@Mod(modid = LocateLegacy.MODID, name = "Locate Legacy", version = "2.5")
 public class LocateLegacy {
 
     public static final String MODID = "locatelegacy";

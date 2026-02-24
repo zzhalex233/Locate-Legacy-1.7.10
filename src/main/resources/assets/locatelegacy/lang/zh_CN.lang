@@ -1,7 +1,7 @@
 locatelegacy.msg.dimension=§7%s所在的维度：§e%s
 
 locatelegacy.usage.title=§e用法:
-locatelegacy.usage.structure=§6/locate structure <village|stronghold|mineshaft|temple>
+locatelegacy.usage.structure=§6/locate structure <namespace:id>
 locatelegacy.usage.biome=§6/locate biome <name>
 locatelegacy.usage.cancel=§6/locate cancel
 

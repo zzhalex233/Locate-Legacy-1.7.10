@@ -12,6 +12,9 @@ import com.example.locatelegacy.locate.LocateTaskManager;
 
 public class LocateCommand extends CommandBase {
 
+    private static final String[] STRUCTURE_IDS = new String[] { "minecraft:village", "minecraft:stronghold",
+        "minecraft:mineshaft", "minecraft:desert_pyramid", "minecraft:jungle_pyramid", "minecraft:swamp_hut" };
+
     @Override
     public String getCommandName() {
         return "locate";
@@ -55,15 +58,15 @@ public class LocateCommand extends CommandBase {
                 return;
             }
 
-            String type = args[1].toLowerCase();
+            String id = args[1].toLowerCase();
 
-            if (!isValidStructureType(type)) {
-                player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.unknown_structure", type));
+            if (!isValidStructureId(id)) {
+                player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.unknown_structure", id));
                 sendUsage(player);
                 return;
             }
 
-            LocateTaskManager.startStructure(player, type);
+            LocateTaskManager.startStructure(player, id);
             return;
         }
 
@@ -82,8 +85,11 @@ public class LocateCommand extends CommandBase {
         sendUsage(player);
     }
 
-    private static boolean isValidStructureType(String type) {
-        return "village".equals(type) || "stronghold".equals(type) || "mineshaft".equals(type) || "temple".equals(type);
+    private static boolean isValidStructureId(String id) {
+        for (String s : STRUCTURE_IDS) {
+            if (s.equals(id)) return true;
+        }
+        return false;
     }
 
     private static String joinArgs(String[] args, int start) {
@@ -96,7 +102,6 @@ public class LocateCommand extends CommandBase {
     }
 
     private void sendUsage(EntityPlayer player) {
-
         player.addChatMessage(new ChatComponentTranslation("locatelegacy.usage.title"));
         player.addChatMessage(new ChatComponentTranslation("locatelegacy.usage.structure"));
         player.addChatMessage(new ChatComponentTranslation("locatelegacy.usage.biome"));
@@ -115,22 +120,20 @@ public class LocateCommand extends CommandBase {
             if (sender instanceof EntityPlayer) {
                 EntityPlayer p = (EntityPlayer) sender;
 
-                boolean any = com.example.locatelegacy.locate.StructureLocator
-                    .isStructureSupportedInWorld(p.worldObj, "village")
-                    || com.example.locatelegacy.locate.StructureLocator
-                        .isStructureSupportedInWorld(p.worldObj, "stronghold")
-                    || com.example.locatelegacy.locate.StructureLocator
-                        .isStructureSupportedInWorld(p.worldObj, "mineshaft")
-                    || com.example.locatelegacy.locate.StructureLocator
-                        .isStructureSupportedInWorld(p.worldObj, "temple");
+                boolean any = false;
+                for (String id : STRUCTURE_IDS) {
+                    if (com.example.locatelegacy.locate.StructureLocator.isStructureSupportedInWorld(p.worldObj, id)) {
+                        any = true;
+                        break;
+                    }
+                }
 
                 if (!any) {
-                    // Tab 返回的是字符串列表，这里就别做本地化了
                     return getListOfStringsMatchingLastWord(args, "当前维度没有可搜索结构");
                 }
             }
 
-            return getListOfStringsMatchingLastWord(args, "village", "stronghold", "mineshaft", "temple");
+            return getListOfStringsMatchingLastWord(args, STRUCTURE_IDS);
         }
 
         if (args.length >= 2 && args[0].equalsIgnoreCase("biome")) {
