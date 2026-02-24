@@ -3,7 +3,8 @@
 Based on **GTNH Team – ExampleMod1.7.10**  
 https://github.com/GTNewHorizons/ExampleMod1.7.10
 
-A simple utility mod for **Minecraft 1.7.10** that adds a `/locate` command similar to newer versions.
+A utility mod for **Minecraft 1.7.10** that adds a `/locate` command
+similar to newer Minecraft versions, with performance and mod compatibility in mind.
 
 ---
 
@@ -11,48 +12,68 @@ A simple utility mod for **Minecraft 1.7.10** that adds a `/locate` command simi
 
 ### Locate structures
 
-`/locate structure <name>`
+`/locate structure <namespace:id>`
 
-- Supports vanilla structures  
-  (`village`, `stronghold`, `mineshaft`, `temple`)
-- Searches the nearest valid structure location
+- Uses **explicit `namespace:id` identifiers** (no legacy short names)
+- Currently supported vanilla structures:
+  - `minecraft:village`
+  - `minecraft:stronghold`
+  - `minecraft:mineshaft`
+  - `minecraft:desert_pyramid`
+  - `minecraft:jungle_pyramid`
+  - `minecraft:swamp_hut`
+- Each structure type is located **independently**
+- Avoids biome-dependent ambiguity (e.g. temples resolving to different structures)
 
 ### Locate biomes
 
 `/locate biome <name>`
 
 - Works with **vanilla and modded biomes**
+- Also works at **mod's dimensions**
 - Compatible with mods such as **Biomes O’ Plenty**
 
 ### Safe Teleport
+
 - Clickable coordinates in chat
 - Automatically finds a **safe landing position**
-- If target is ocean/liquid, will search for **nearest land**
-- Nether / no-sky dimensions avoid bedrock ceiling
+- If the target is ocean or liquid, searches for the **nearest solid ground**
+- Nether / no-sky dimensions avoid bedrock ceiling issues
 
 ### Other
+
 - `/locate cancel` — cancel a running locate task
-- Tab-completion support
-- Config `.minecraft/config/LocateLegacy.cfg` for whether could click to teleport and more...
-- Display the distance to the target in the chat box
+- Config file:  
+  `.minecraft/config/LocateLegacy.cfg`
+  - Enable or disable clickable teleport
+- Displays the **distance to the target** in chat
 
-### Environment Compatible
-- tested in GTNH2.8.4: locating village and mod's biome has perfectly performed
+### Environment Compatibility
 
+- Tested in **GTNH 2.8.4**
+, Village locating and modded biome locating work reliably
+- Tested in Biome o' Plenty enviroment
 ---
 
 ## Notes
 
 > **Warning**  
-> Due to limitations of Minecraft 1.7.10, structure locating is based on structure spawn logic rather than guaranteed generation.  
-> In some cases, the located coordinates may not contain a generated structure. ps:v2.3 later, this situation is less possible
+> Due to limitations of Minecraft 1.7.10, structure locating is based on
+> **structure spawn rules** rather than guaranteed generation.
+>
+> This means a located position *may* not always contain a generated structure,
+> especially in unexplored terrain.
+>
+> Later versions (v2.3+) reduce the likelihood of this issue (?).
+
+---
+
+## Localization
+
+- English and Chinese are supported (since v2.3.2)
 
 ---
 
 ## Download
 
 Download the mod from the **Releases** page.
-
-## Localization
-
-Already support English and Chinese in v2.3.2
