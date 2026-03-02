@@ -22,7 +22,6 @@ import net.minecraftforge.common.BiomeDictionary;
 import com.example.locatelegacy.config.StructureConfigManager;
 import com.example.locatelegacy.config.StructureDefinition;
 
-
 public class StructureLocator {
 
     private static volatile Method canSpawnMethod;
