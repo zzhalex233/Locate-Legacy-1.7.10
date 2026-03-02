@@ -9,6 +9,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 
+import com.example.locatelegacy.config.BiomeListManager;
+
 public class BiomeLocator {
 
     private static final int SAMPLE_RADIUS_CHUNKS = 10;
@@ -33,6 +35,10 @@ public class BiomeLocator {
 
         if (world == null || player == null) return new ArrayList<String>();
 
+        int dim = world.provider.dimensionId;
+        List<String> persisted = BiomeListManager.getBiomeNamesForDim(dim);
+        if (persisted != null) out.addAll(persisted);
+
         int pcx = ((int) player.posX) >> 4;
         int pcz = ((int) player.posZ) >> 4;
 
@@ -55,6 +61,9 @@ public class BiomeLocator {
                         if (b == null || b.biomeName == null) continue;
 
                         out.add(b.biomeName);
+
+                        // 顺手把采样到的群系写入json
+                        BiomeListManager.recordBiome(dim, b.biomeID, b.biomeName);
                     }
                 }
             }

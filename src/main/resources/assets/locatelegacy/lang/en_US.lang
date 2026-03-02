@@ -4,6 +4,7 @@ locatelegacy.usage.title=§eUsage:
 locatelegacy.usage.structure=§6/locate structure <namespace:id>
 locatelegacy.usage.biome=§6/locate biome <name>
 locatelegacy.usage.cancel=§6/locate cancel
+locatelegacy.usage.debug=§6/locate debug structures
 
 locatelegacy.msg.unknown_structure=§cUnknown structure type: §e%s
 
