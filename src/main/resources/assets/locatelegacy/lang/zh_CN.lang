@@ -1,30 +1,53 @@
-locatelegacy.msg.dimension=§7%s所在的维度：§e%s
+locatelegacy.msg.dimension=§7%s 所在维度：§e%s
 
 locatelegacy.usage.title=§e用法:
 locatelegacy.usage.structure=§6/locate structure <namespace:id>
 locatelegacy.usage.biome=§6/locate biome <name>
 locatelegacy.usage.cancel=§6/locate cancel
 locatelegacy.usage.debug=§6/locate debug structures
+locatelegacy.usage.debug.structures=§6/locate debug structures
+locatelegacy.usage.debug.biome=§6/locate debug biome
 
 locatelegacy.msg.unknown_structure=§c未知结构类型: §e%s
+locatelegacy.msg.structure_id_format=§c结构 ID 必须是 namespace:id（例如 minecraft:village）
+locatelegacy.msg.structure_not_locatable=§c当前维度无法定位该结构：§e%s
 
-locatelegacy.msg.task_running=§c你已经有一个 locate 正在运行，输入 §e/locate cancel §c取消。
+locatelegacy.msg.task_running=§c已有一个 locate 正在运行，输入 §e/locate cancel §c取消。
 locatelegacy.msg.no_structures_in_dimension=§c当前维度没有可搜索结构：§e%s
-locatelegacy.msg.scanning_structure=§7正在扫描最近结构...（可用 §e/locate cancel §7取消）
+locatelegacy.msg.scanning_structure=§7正在扫描最近结构...（可用 §e/locate cancel§7 取消）
 locatelegacy.msg.delayed_busy=§e检测到区块正在生成/加载，已自动延迟 2 秒执行以避免卡顿。
 
 locatelegacy.msg.no_biome_in_dimension=§c当前维度没有该群系：§e%s
 locatelegacy.msg.biome_hint=§7提示：先在本维度走动加载一些区块，再按 Tab 查看可用群系。
 
 locatelegacy.msg.cache_hit=§7(缓存命中)
-locatelegacy.msg.scanning_biome=§7正在扫描最近生物群系...（可用 §e/locate cancel §7取消）
+locatelegacy.msg.scanning_biome=§7正在扫描最近群系...（可用 §e/locate cancel§7 取消）
 
 locatelegacy.msg.cancelled=§c已取消 locate。
-locatelegacy.msg.no_task=§7没有正在运行的 locate。
-locatelegacy.msg.not_found=§c未找到目标（建议扩大探索范围或稍后再试）
+locatelegacy.msg.no_task=§7当前没有正在运行的 locate。
+locatelegacy.msg.not_found=§c未找到目标（建议扩大搜索范围或稍后再试）
 
 locatelegacy.msg.found_prefix=§a找到坐标: 
 locatelegacy.msg.adjusted_to_land=§7(已自动调整到最近陆地)
 
 locatelegacy.msg.distance=§7距离：§e%s 格
 locatelegacy.msg.click_to_tp=§7点击传送
+
+locatelegacy.debug.scan_start=[LocateLegacy] 调试：正在扫描 MapGenStructure 字段...
+locatelegacy.debug.no_mapgen=[LocateLegacy] 当前维度未发现 MapGenStructure。
+locatelegacy.debug.biome_null=[LocateLegacy] 调试群系：<null>
+locatelegacy.debug.biome_info=[LocateLegacy] 调试群系：名称=%s
+locatelegacy.debug.usage=[LocateLegacy] 用法: /locate debug structures | /locate debug biome
+locatelegacy.debug.copy_button=  [复制JSON]
+locatelegacy.debug.copy_hover=点击复制结构 JSON 到剪贴板
+locatelegacy.debug.copied=§a已复制到剪贴板。
+locatelegacy.debug.copy_failed=§c复制失败。
+
+locatelegacy.tab.no_structure=当前维度没有可搜索结构
+locatelegacy.tab.no_biome=当前维度暂无可补全群系
+
+locatelegacy.debug.learn_usage=[LocateLegacy] 用法: /locate debug learn <namespace:id>
+locatelegacy.debug.learn_no_structure=[LocateLegacy] 当前位置附近未匹配到已生成结构。
+locatelegacy.debug.learn_save_failed=[LocateLegacy] 学习数据保存失败。
+locatelegacy.debug.clearlearn_ok=[LocateLegacy] 已清空临时学习数据。
+locatelegacy.debug.clearlearn_failed=[LocateLegacy] 清空临时学习数据失败。

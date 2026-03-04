@@ -35,4 +35,7 @@
  */
 dependencies {
     //runtimeOnlyNonPublishable("com.github.GTNewHorizons:NotEnoughItems:2.7.69-GTNH:dev")
+    runtimeOnlyNonPublishable(rfg.deobf(project.files("libs/TwilightForest-2.4.3.jar")))
+    runtimeOnlyNonPublishable(rfg.deobf(project.files("libs/BiomesOPlenty-1.7.10-2.1.0.2308-universal.jar")))
+    runtimeOnlyNonPublishable(rfg.deobf(project.files("libs/spark-1.10.19-forge1710.jar")))
 }

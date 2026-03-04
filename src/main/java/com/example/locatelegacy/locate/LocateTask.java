@@ -25,13 +25,13 @@ public class LocateTask {
 
     public volatile boolean cancelled = false;
 
-    public volatile boolean generating = false;
+    private volatile boolean generating = false;
 
     public volatile long notBeforeTick = 0L;
 
     public final ConcurrentLinkedQueue<Long> candidates = new ConcurrentLinkedQueue<Long>();
 
-    public int spiralRadius = 0;
+    public volatile int spiralRadius = 0;
 
     public final int maxSpiralRadius;
 
@@ -56,9 +56,10 @@ public class LocateTask {
 
     public void generateMoreCandidatesAsync() {
 
-        if (generating) return;
-
-        generating = true;
+        synchronized (this) {
+            if (generating) return;
+            generating = true;
+        }
 
         LocateExecutor.submit(new Runnable() {
 
@@ -88,14 +89,20 @@ public class LocateTask {
                             }
                         }
 
-                        spiralRadius++;
+                        spiralRadius = r + 1;
                     }
 
                 } finally {
-                    generating = false;
+                    synchronized (LocateTask.this) {
+                        generating = false;
+                    }
                 }
             }
         });
+    }
+
+    public boolean isGenerating() {
+        return generating;
     }
 
     public int[] checkOne(int chunkX, int chunkZ) {

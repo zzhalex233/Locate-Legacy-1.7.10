@@ -38,10 +38,23 @@ public class StructureDefinition {
     public boolean biomeAll = false;
 
     /** 群系白名单，可多 */
-    public List<Integer> biomeIdWhitelist = new ArrayList<Integer>();
+    public List<String> biomeNameWhitelist = new ArrayList<String>();
 
     /** 群系黑名单，可多 */
-    public List<Integer> biomeIdBlacklist = new ArrayList<Integer>();
+    public List<String> biomeNameBlacklist = new ArrayList<String>();
+
+    /** true: if any filter fails, candidate is rejected */
+    public boolean filterStrict = true;
+
+    /** optional Y-range filter */
+    public Integer heightMinY = null;
+    public Integer heightMaxY = null;
+    public String heightUnknownPolicy = "pass";
+
+    /** optional occupied-chunk-diameter filter */
+    public Integer occupiedChunkDiameterMin = null;
+    public Integer occupiedChunkDiameterMax = null;
+    public String diameterUnknownPolicy = "pass";
 
     public boolean isValid() {
         return id != null && !id.trim()
@@ -60,5 +73,13 @@ public class StructureDefinition {
         String ns = (mod == null || mod.trim()
             .isEmpty()) ? "minecraft" : mod.trim();
         return (ns + ":" + rawId).toLowerCase();
+    }
+
+    public boolean hasHeightRangeFilter() {
+        return heightMinY != null || heightMaxY != null;
+    }
+
+    public boolean hasOccupiedChunkDiameterFilter() {
+        return occupiedChunkDiameterMin != null || occupiedChunkDiameterMax != null;
     }
 }

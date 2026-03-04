@@ -3,7 +3,9 @@ package com.example.locatelegacy;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import com.example.locatelegacy.config.BiomeListManager;
 import com.example.locatelegacy.locate.LocateTaskManager;
+import com.example.locatelegacy.util.LogUtil;
 
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
@@ -34,14 +36,20 @@ public final class TickHandler {
             try {
                 r.run();
             } catch (Throwable t) {
-                t.printStackTrace();
+                LogUtil.warn("Main-thread queued task failed.", t);
             }
         }
 
         try {
             LocateTaskManager.tick();
         } catch (Throwable t) {
-            t.printStackTrace();
+            LogUtil.error("Locate task tick failed.", t);
+        }
+
+        try {
+            BiomeListManager.tickSave();
+        } catch (Throwable t) {
+            LogUtil.error("Biome list periodic save failed.", t);
         }
     }
 }

@@ -7,9 +7,10 @@ import net.minecraftforge.common.MinecraftForge;
 import com.example.locatelegacy.command.LocateCommand;
 import com.example.locatelegacy.config.BiomeListManager;
 import com.example.locatelegacy.config.BiomeWalkTracker;
+import com.example.locatelegacy.config.LearnProfileManager;
 import com.example.locatelegacy.config.LocateLegacyConfig;
 import com.example.locatelegacy.config.StructureConfigManager;
-import com.example.locatelegacy.locate.LocateTaskManager;
+import com.example.locatelegacy.util.LogUtil;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
@@ -27,7 +28,7 @@ public class LocateLegacy {
 
     public static final String MODID = "locatelegacy";
     public static final String NAME = "LocateLegacy";
-    public static final String VERSION = "3.0";
+    public static final String VERSION = "3.1";
 
     private static boolean registered = false;
 
@@ -38,6 +39,7 @@ public class LocateLegacy {
 
         StructureConfigManager.init(event.getModConfigurationDirectory());
         BiomeListManager.init(event.getModConfigurationDirectory());
+        LearnProfileManager.init(event.getModConfigurationDirectory());
     }
 
     @EventHandler
@@ -45,13 +47,22 @@ public class LocateLegacy {
         if (!registered) {
             FMLCommonHandler.instance()
                 .bus()
-                .register(new ServerTickDriver());
-            FMLCommonHandler.instance()
-                .bus()
                 .register(new TickHandler());
             FMLCommonHandler.instance()
                 .bus()
                 .register(new BiomeWalkTracker());
+
+            if (FMLCommonHandler.instance()
+                .getSide()
+                .isClient()) {
+                try {
+                    Class<?> c = Class.forName("com.example.locatelegacy.client.ClientInit");
+                    c.getMethod("registerClientCommands")
+                        .invoke(null);
+                } catch (Throwable t) {
+                    LogUtil.error("Failed to register client commands.", t);
+                }
+            }
 
             registered = true;
         }
@@ -61,16 +72,5 @@ public class LocateLegacy {
     @EventHandler
     public void serverStarting(FMLServerStartingEvent event) {
         event.registerServerCommand(new LocateCommand());
-    }
-
-    public static class ServerTickDriver {
-
-        @cpw.mods.fml.common.eventhandler.SubscribeEvent
-        public void onServerTick(cpw.mods.fml.common.gameevent.TickEvent.ServerTickEvent e) {
-            if (e.phase != cpw.mods.fml.common.gameevent.TickEvent.Phase.END) return;
-
-            LocateTaskManager.tick();
-            BiomeListManager.tickSave();
-        }
     }
 }

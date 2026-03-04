@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import com.example.locatelegacy.util.LogUtil;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -44,10 +45,6 @@ public final class ResourcePackOverrides {
             if (!rpDir.isDirectory()) return null;
 
             List<File> packs = getSelectedBiomePacks(gameDir, rpDir);
-
-            if (packs.isEmpty()) {
-                packs = scanAllBiomePacks(rpDir);
-            }
 
             if (packs.isEmpty()) return null;
 
@@ -101,7 +98,7 @@ public final class ResourcePackOverrides {
             }
 
         } catch (Throwable t) {
-            t.printStackTrace();
+            LogUtil.warn("Failed to load biomepack override json.", t);
         }
         return null;
     }

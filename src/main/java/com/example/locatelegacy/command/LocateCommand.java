@@ -1,6 +1,7 @@
 package com.example.locatelegacy.command;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -10,10 +11,14 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.ChatStyle;
+import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 
 import com.example.locatelegacy.config.BiomeListManager;
+import com.example.locatelegacy.config.LearnProfileManager;
 import com.example.locatelegacy.config.StructureConfigManager;
 import com.example.locatelegacy.config.StructureDefinition;
 import com.example.locatelegacy.locate.LocateTaskManager;
@@ -71,14 +76,14 @@ public class LocateCommand extends CommandBase {
 
             if (id.indexOf(':') < 0) {
                 player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.unknown_structure", id));
-                player.addChatMessage(new ChatComponentText("结构ID必须是 namespace:id（例如 minecraft:village）"));
+                player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.structure_id_format"));
                 return;
             }
 
             List<String> available = getAvailableStructureIdsMerged(world);
             if (available == null || available.isEmpty() || !containsIgnoreCase(available, id)) {
                 player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.unknown_structure", id));
-                player.addChatMessage(new ChatComponentText("当前维度没有该结构可 locate：" + id));
+                player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.structure_not_locatable", id));
                 return;
             }
 
@@ -105,15 +110,64 @@ public class LocateCommand extends CommandBase {
         World world = player.worldObj;
 
         if (args.length == 2 && "structures".equalsIgnoreCase(args[1])) {
-            player.addChatMessage(new ChatComponentText("[LocateLegacy] Debug: scanning MapGenStructure fields.."));
-            List<String> lines = StructureLocator.debugListStructureGenerators(world);
-            if (lines == null || lines.isEmpty()) {
-                player.addChatMessage(
-                    new ChatComponentText("[LocateLegacy] No MapGenStructure found in this dimension."));
-            } else {
-                for (String s : lines) {
-                    player.addChatMessage(new ChatComponentText(s));
+            player.addChatMessage(new ChatComponentTranslation("locatelegacy.debug.scan_start"));
+            List<String> raw = StructureLocator.debugListStructureGenerators(world);
+            if (raw != null) {
+                for (String s : raw) {
+                    player.addChatMessage(colored("  " + s, EnumChatFormatting.DARK_GRAY));
                 }
+            }
+            int cx = ((int) player.posX) >> 4;
+            int cz = ((int) player.posZ) >> 4;
+            List<StructureLocator.DebugStructureInfo> infos = StructureLocator.debugDescribeStructures(world, cx, cz);
+            if (infos == null || infos.isEmpty()) {
+                player.addChatMessage(new ChatComponentTranslation("locatelegacy.debug.no_mapgen"));
+            } else {
+                int i = 1;
+                for (StructureLocator.DebugStructureInfo info : infos) {
+                    sendStructureDebugBlock(player, i++, info);
+                }
+            }
+            return;
+        }
+
+        if (args.length >= 2 && "learn".equalsIgnoreCase(args[1])) {
+            if (args.length < 3) {
+                player.addChatMessage(new ChatComponentTranslation("locatelegacy.debug.learn_usage"));
+                return;
+            }
+
+            String fullId = args[2].trim()
+                .toLowerCase();
+            if (fullId.indexOf(':') < 0) {
+                player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.structure_id_format"));
+                return;
+            }
+
+            StructureLocator.DebugLearnResult learned = StructureLocator
+                .debugLearnStructureAt(world, fullId, (int) Math.floor(player.posX), (int) Math.floor(player.posZ));
+
+            if (learned == null) {
+                player.addChatMessage(new ChatComponentTranslation("locatelegacy.debug.learn_no_structure"));
+                return;
+            }
+
+            LearnProfileManager.LearnSummary summary = LearnProfileManager.recordLearn(learned);
+            if (summary == null) {
+                player.addChatMessage(new ChatComponentTranslation("locatelegacy.debug.learn_save_failed"));
+                return;
+            }
+
+            sendLearnSummaryBlock(player, learned, summary);
+            return;
+        }
+
+        if (args.length == 2 && "clearlearn".equalsIgnoreCase(args[1])) {
+            boolean ok = LearnProfileManager.clear();
+            if (ok) {
+                player.addChatMessage(new ChatComponentTranslation("locatelegacy.debug.clearlearn_ok"));
+            } else {
+                player.addChatMessage(new ChatComponentTranslation("locatelegacy.debug.clearlearn_failed"));
             }
             return;
         }
@@ -123,16 +177,14 @@ public class LocateCommand extends CommandBase {
             int z = (int) Math.floor(player.posZ);
             BiomeGenBase b = world.getBiomeGenForCoords(x, z);
             if (b == null) {
-                player.addChatMessage(new ChatComponentText("[LocateLegacy] Debug biome: <null>"));
+                player.addChatMessage(new ChatComponentTranslation("locatelegacy.debug.biome_null"));
             } else {
-                player.addChatMessage(
-                    new ChatComponentText("[LocateLegacy] Debug biome: name=" + b.biomeName + " id=" + b.biomeID));
+                player.addChatMessage(new ChatComponentTranslation("locatelegacy.debug.biome_info", b.biomeName));
             }
             return;
         }
 
-        player.addChatMessage(
-            new ChatComponentText("[LocateLegacy] Usage: /locate debug structures | /locate debug biome"));
+        player.addChatMessage(new ChatComponentTranslation("locatelegacy.debug.usage"));
     }
 
     @Override
@@ -149,14 +201,22 @@ public class LocateCommand extends CommandBase {
 
         // /locate debug <...>
         if (args.length == 2 && args[0].equalsIgnoreCase("debug")) {
-            return getListOfStringsMatchingLastWord(args, "structures", "biome");
+            return getListOfStringsMatchingLastWord(args, "structures", "biome", "learn", "clearlearn");
+        }
+
+        if (args.length == 3 && args[0].equalsIgnoreCase("debug") && args[1].equalsIgnoreCase("learn")) {
+            List<String> merged = getAvailableStructureIdsMerged(w);
+            if (merged == null || merged.isEmpty()) return null;
+            return getListOfStringsMatchingLastWord(args, merged.toArray(new String[0]));
         }
 
         // structure
         if (args.length == 2 && args[0].equalsIgnoreCase("structure")) {
             List<String> merged = getAvailableStructureIdsMerged(w);
             if (merged == null || merged.isEmpty()) {
-                return getListOfStringsMatchingLastWord(args, "当前维度没有可搜索结构");
+                return getListOfStringsMatchingLastWord(
+                    args,
+                    StatCollector.translateToLocal("locatelegacy.tab.no_structure"));
             }
             return getListOfStringsMatchingLastWord(args, merged.toArray(new String[0]));
         }
@@ -179,7 +239,9 @@ public class LocateCommand extends CommandBase {
             appendDedupIgnoreCase(merged, extra);
 
             if (merged.isEmpty()) {
-                return getListOfStringsMatchingLastWord(args, "当前维度暂未发现可补全群系");
+                return getListOfStringsMatchingLastWord(
+                    args,
+                    StatCollector.translateToLocal("locatelegacy.tab.no_biome"));
             }
 
             return getListOfStringsMatchingLastWord(args, merged.toArray(new String[0]));
@@ -273,7 +335,84 @@ public class LocateCommand extends CommandBase {
         player.addChatMessage(new ChatComponentTranslation("locatelegacy.usage.structure"));
         player.addChatMessage(new ChatComponentTranslation("locatelegacy.usage.biome"));
         player.addChatMessage(new ChatComponentTranslation("locatelegacy.usage.cancel"));
-        player.addChatMessage(new ChatComponentText("/locate debug structures"));
-        player.addChatMessage(new ChatComponentText("/locate debug biome"));
+        player.addChatMessage(new ChatComponentTranslation("locatelegacy.usage.debug.structures"));
+        player.addChatMessage(new ChatComponentTranslation("locatelegacy.usage.debug.biome"));
+    }
+
+    private net.minecraft.util.IChatComponent buildCopyComponent(String rawJson) {
+        String encoded = Base64.getEncoder()
+            .encodeToString(rawJson.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        ChatComponentText c = new ChatComponentText(StatCollector.translateToLocal("locatelegacy.debug.copy_button"));
+        ChatStyle style = new ChatStyle();
+        style.setColor(EnumChatFormatting.AQUA);
+        style.setChatClickEvent(
+            new net.minecraft.event.ClickEvent(
+                net.minecraft.event.ClickEvent.Action.RUN_COMMAND,
+                "/llcopy " + encoded));
+        style.setChatHoverEvent(
+            new net.minecraft.event.HoverEvent(
+                net.minecraft.event.HoverEvent.Action.SHOW_TEXT,
+                new ChatComponentTranslation("locatelegacy.debug.copy_hover")));
+        c.setChatStyle(style);
+        return c;
+    }
+
+    private void sendStructureDebugBlock(EntityPlayer player, int index, StructureLocator.DebugStructureInfo info) {
+        player.addChatMessage(colored("------------------------------", EnumChatFormatting.DARK_GRAY));
+        player.addChatMessage(
+            colored("[" + index + "] " + info.fullId + "  (dim " + info.dim + ")", EnumChatFormatting.GOLD));
+        player.addChatMessage(colored("  mapGen: " + info.mapGenClass, EnumChatFormatting.GRAY));
+        player.addChatMessage(colored("  biome: " + info.biomeRule, EnumChatFormatting.GRAY));
+        player.addChatMessage(colored("  height: " + info.heightRule, EnumChatFormatting.GRAY));
+        player.addChatMessage(colored("  occupiedChunkDiameter: " + info.diameterRule, EnumChatFormatting.GRAY));
+
+        EnumChatFormatting sampleColor = info.sampleStatus != null && info.sampleStatus.toUpperCase()
+            .contains("FAIL") ? EnumChatFormatting.RED : EnumChatFormatting.GREEN;
+        player.addChatMessage(colored("  sample: " + info.sampleStatus, sampleColor));
+        player.addChatMessage(buildCopyComponent(info.copyJson));
+    }
+
+    private static ChatComponentText colored(String text, EnumChatFormatting color) {
+        ChatComponentText c = new ChatComponentText(text);
+        ChatStyle st = new ChatStyle();
+        st.setColor(color);
+        c.setChatStyle(st);
+        return c;
+    }
+
+    private void sendLearnSummaryBlock(EntityPlayer player, StructureLocator.DebugLearnResult r,
+        LearnProfileManager.LearnSummary s) {
+        player.addChatMessage(colored("------------------------------", EnumChatFormatting.DARK_GRAY));
+        player.addChatMessage(colored("[Learn] " + r.fullId + " (dim " + r.dim + ")", EnumChatFormatting.GOLD));
+        player.addChatMessage(
+            colored("  mapGen: " + (s.mapGen == null ? r.mapGenClass : s.mapGen), EnumChatFormatting.GRAY));
+        player.addChatMessage(colored("  providerField: " + r.providerField, EnumChatFormatting.GRAY));
+        player.addChatMessage(colored("  samples(total): " + s.samples, EnumChatFormatting.AQUA));
+        player.addChatMessage(
+            colored(
+                "  occupiedChunkDiameter(determined): "
+                    + (s.occupiedChunkDiameter != null ? s.occupiedChunkDiameter.intValue() : "UNKNOWN"),
+                EnumChatFormatting.GRAY));
+        player.addChatMessage(
+            colored(
+                "  occupiedChunkDiameter(range): "
+                    + (s.occupiedChunkDiameterMin != null ? s.occupiedChunkDiameterMin.intValue() : "UNKNOWN")
+                    + " .. "
+                    + (s.occupiedChunkDiameterMax != null ? s.occupiedChunkDiameterMax.intValue() : "UNKNOWN"),
+                EnumChatFormatting.GRAY));
+        player.addChatMessage(
+            colored(
+                "  heightRange(merged): " + (s.heightMinY != null ? s.heightMinY.intValue() : "UNKNOWN")
+                    + " .. "
+                    + (s.heightMaxY != null ? s.heightMaxY.intValue() : "UNKNOWN"),
+                EnumChatFormatting.GRAY));
+        player.addChatMessage(
+            colored(
+                "  avgHeight(merged): "
+                    + (s.heightAvgY != null ? String.format(java.util.Locale.ROOT, "%.2f", s.heightAvgY) : "UNKNOWN"),
+                EnumChatFormatting.GRAY));
+        player.addChatMessage(colored("  biomeWhitelist(merged): " + s.biomeWhitelist, EnumChatFormatting.GRAY));
+        player.addChatMessage(colored("  note: " + r.note, EnumChatFormatting.DARK_GRAY));
+        player.addChatMessage(buildCopyComponent(s.copyJson));
     }
 }

@@ -146,19 +146,21 @@ public final class StructureConfigManager {
             e.dim = getAsInt(obj, "dim", 0);
 
             e.biomeAll = false;
-            e.biomeIdWhitelist.clear();
-            e.biomeIdBlacklist.clear();
+            e.biomeNameWhitelist.clear();
+            e.biomeNameBlacklist.clear();
 
-            if (obj.has("biomeId")) {
-                applyBiomeRule(e, obj.get("biomeId"));
+            if (obj.has("biomeName")) {
+                applyBiomeNameRule(e, obj.get("biomeName"));
             }
 
-            if (obj.has("biomeIdWhitelist")) {
-                applyIntList(e.biomeIdWhitelist, obj.get("biomeIdWhitelist"));
+            if (obj.has("biomeNameWhitelist")) {
+                applyStringList(e.biomeNameWhitelist, obj.get("biomeNameWhitelist"));
             }
-            if (obj.has("biomeIdBlacklist")) {
-                applyIntList(e.biomeIdBlacklist, obj.get("biomeIdBlacklist"));
+            if (obj.has("biomeNameBlacklist")) {
+                applyStringList(e.biomeNameBlacklist, obj.get("biomeNameBlacklist"));
             }
+
+            applyFilters(e, obj);
 
             return e;
         } catch (Throwable t) {
@@ -167,7 +169,34 @@ public final class StructureConfigManager {
         }
     }
 
-    private static void applyBiomeRule(StructureDefinition e, JsonElement biomeEl) {
+    private static void applyFilters(StructureDefinition e, JsonObject obj) {
+        if (e == null || obj == null
+            || !obj.has("filters")
+            || !obj.get("filters")
+                .isJsonObject())
+            return;
+
+        JsonObject f = obj.getAsJsonObject("filters");
+        e.filterStrict = getAsBool(f, "strict", true);
+
+        if (f.has("heightRange") && f.get("heightRange")
+            .isJsonObject()) {
+            JsonObject h = f.getAsJsonObject("heightRange");
+            if (h.has("minY")) e.heightMinY = Integer.valueOf(getAsInt(h, "minY", 0));
+            if (h.has("maxY")) e.heightMaxY = Integer.valueOf(getAsInt(h, "maxY", 255));
+            e.heightUnknownPolicy = normalizeUnknownPolicy(getAsString(h, "unknownPolicy", "pass"));
+        }
+
+        if (f.has("occupiedChunkDiameter") && f.get("occupiedChunkDiameter")
+            .isJsonObject()) {
+            JsonObject d = f.getAsJsonObject("occupiedChunkDiameter");
+            if (d.has("min")) e.occupiedChunkDiameterMin = Integer.valueOf(getAsInt(d, "min", 0));
+            if (d.has("max")) e.occupiedChunkDiameterMax = Integer.valueOf(getAsInt(d, "max", 4096));
+            e.diameterUnknownPolicy = normalizeUnknownPolicy(getAsString(d, "unknownPolicy", "pass"));
+        }
+    }
+
+    private static void applyBiomeNameRule(StructureDefinition e, JsonElement biomeEl) {
         if (biomeEl == null || biomeEl.isJsonNull()) return;
 
         if (biomeEl.isJsonPrimitive()) {
@@ -177,16 +206,15 @@ public final class StructureConfigManager {
                     e.biomeAll = true;
                     return;
                 }
+                if (s != null && s.trim().length() > 0) {
+                    e.biomeNameWhitelist.add(s.trim().toLowerCase());
+                }
+                return;
             } catch (Throwable ignored) {}
-
-            try {
-                e.biomeIdWhitelist.add(Integer.valueOf(biomeEl.getAsInt()));
-            } catch (Throwable ignored) {}
-            return;
         }
 
         if (biomeEl.isJsonArray()) {
-            applyIntList(e.biomeIdWhitelist, biomeEl);
+            applyStringList(e.biomeNameWhitelist, biomeEl);
             return;
         }
 
@@ -200,27 +228,35 @@ public final class StructureConfigManager {
                 } catch (Throwable ignored) {}
             }
             if (o.has("whitelist")) {
-                applyIntList(e.biomeIdWhitelist, o.get("whitelist"));
+                applyStringList(e.biomeNameWhitelist, o.get("whitelist"));
             }
             if (o.has("blacklist")) {
-                applyIntList(e.biomeIdBlacklist, o.get("blacklist"));
+                applyStringList(e.biomeNameBlacklist, o.get("blacklist"));
             }
         }
     }
 
-    private static void applyIntList(java.util.List<Integer> out, JsonElement el) {
+    private static void applyStringList(java.util.List<String> out, JsonElement el) {
         if (el == null || el.isJsonNull()) return;
         if (el.isJsonArray()) {
             for (JsonElement x : el.getAsJsonArray()) {
                 if (x != null && x.isJsonPrimitive()) {
                     try {
-                        out.add(Integer.valueOf(x.getAsInt()));
+                        String s = x.getAsString();
+                        if (s != null) {
+                            s = s.trim().toLowerCase();
+                            if (s.length() > 0) out.add(s);
+                        }
                     } catch (Throwable ignored) {}
                 }
             }
         } else if (el.isJsonPrimitive()) {
             try {
-                out.add(Integer.valueOf(el.getAsInt()));
+                String s = el.getAsString();
+                if (s != null) {
+                    s = s.trim().toLowerCase();
+                    if (s.length() > 0) out.add(s);
+                }
             } catch (Throwable ignored) {}
         }
     }
@@ -247,11 +283,29 @@ public final class StructureConfigManager {
         }
     }
 
+    private static boolean getAsBool(JsonObject obj, String key, boolean def) {
+        if (obj == null || key == null) return def;
+        try {
+            if (!obj.has(key)) return def;
+            JsonElement e = obj.get(key);
+            return e != null ? e.getAsBoolean() : def;
+        } catch (Throwable ignored) {
+            return def;
+        }
+    }
+
+    private static String normalizeUnknownPolicy(String raw) {
+        if (raw == null) return "pass";
+        String v = raw.trim()
+            .toLowerCase();
+        return "fail".equals(v) ? "fail" : "pass";
+    }
+
     private static void writeDefault(File f) {
         FileWriter fw = null;
         try {
             JsonObject root = new JsonObject();
-            root.addProperty("version", 1);
+            root.addProperty("version", 2);
             root.add("structures", new JsonArray());
 
             Gson gson = new GsonBuilder().setPrettyPrinting()

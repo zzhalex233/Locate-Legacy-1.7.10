@@ -1,5 +1,7 @@
 package com.example.locatelegacy.locate;
 
+import net.minecraft.util.EnumChatFormatting;
+
 import com.example.locatelegacy.config.LocateLegacyConfig;
 
 public class LocateMessageUtil {
@@ -17,24 +19,22 @@ public class LocateMessageUtil {
         net.minecraft.util.IChatComponent prefix = new net.minecraft.util.ChatComponentTranslation(
             "locatelegacy.msg.found_prefix");
 
-        net.minecraft.util.IChatComponent coords = new net.minecraft.util.ChatComponentText(
-            "§e" + tx + " " + ty + " " + tz);
+        net.minecraft.util.IChatComponent coords = new net.minecraft.util.ChatComponentText(tx + " " + ty + " " + tz);
+        net.minecraft.util.ChatStyle style = new net.minecraft.util.ChatStyle();
+        style.setColor(EnumChatFormatting.GOLD);
 
         if (LocateLegacyConfig.clickToTeleport) {
-
-            net.minecraft.util.ChatStyle style = new net.minecraft.util.ChatStyle();
             style.setChatClickEvent(
                 new net.minecraft.event.ClickEvent(
                     net.minecraft.event.ClickEvent.Action.RUN_COMMAND,
-                    "/tp " + tx + " " + ty + " " + tz));
+                    "/lltp " + tx + " " + ty + " " + tz));
             style.setChatHoverEvent(
                 new net.minecraft.event.HoverEvent(
                     net.minecraft.event.HoverEvent.Action.SHOW_TEXT,
                     new net.minecraft.util.ChatComponentTranslation("locatelegacy.msg.click_to_tp")));
-
-            coords.setChatStyle(style);
         }
 
+        coords.setChatStyle(style);
         prefix.appendSibling(coords);
         player.addChatMessage(prefix);
 

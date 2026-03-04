@@ -1,5 +1,7 @@
 package com.example.locatelegacy.locate;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,19 +19,16 @@ public class LocateTaskManager {
     private static final Map<String, CacheEntry> CACHE = new ConcurrentHashMap<String, CacheEntry>();
 
     private static final long CACHE_TTL_TICKS = 20L * 30L;
+    private static final long CACHE_CLEANUP_INTERVAL_TICKS = 20L * 10L;
 
     private static final int CHECKS_PER_TICK = 200;
 
     private static final long DELAY_TICKS_IF_BUSY = 40L;
+    private static volatile long lastCacheCleanupTick = 0L;
 
     public static boolean startStructure(EntityPlayer player, String type) {
 
-        String keyPlayer = player.getCommandSenderName();
-
-        if (TASKS.containsKey(keyPlayer)) {
-            player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.task_running"));
-            return false;
-        }
+        String keyPlayer = playerKey(player);
 
         if (!com.example.locatelegacy.locate.StructureLocator.isStructureSupportedInWorld(player.worldObj, type)) {
             player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.no_structures_in_dimension", type));
@@ -49,7 +48,11 @@ public class LocateTaskManager {
         }
 
         LocateTask task = new LocateTask(player, player.worldObj, LocateTask.Mode.STRUCTURE, type, cacheKey);
-        TASKS.put(keyPlayer, task);
+        LocateTask old = TASKS.putIfAbsent(keyPlayer, task);
+        if (old != null) {
+            player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.task_running"));
+            return false;
+        }
 
         player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.scanning_structure"));
 
@@ -64,12 +67,7 @@ public class LocateTaskManager {
 
     public static boolean startBiome(EntityPlayer player, String biomeName) {
 
-        String keyPlayer = player.getCommandSenderName();
-
-        if (TASKS.containsKey(keyPlayer)) {
-            player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.task_running"));
-            return false;
-        }
+        String keyPlayer = playerKey(player);
 
         World world = player.worldObj;
         int dim = world.provider.dimensionId;
@@ -81,7 +79,8 @@ public class LocateTaskManager {
             target = com.example.locatelegacy.locate.BiomeLocator.findBiomeByNameGlobal(biomeName);
             if (target != null) displayName = target.biomeName;
         } else {
-            target = com.example.locatelegacy.locate.BiomeLocator.findBiomeByNameObserved(world, player, biomeName);
+            List<String> observed = com.example.locatelegacy.locate.BiomeLocator.getObservedBiomeNames(world, player);
+            target = findBiomeByNameFromObservedList(observed, biomeName);
             if (target != null) displayName = target.biomeName;
         }
 
@@ -90,12 +89,6 @@ public class LocateTaskManager {
             player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.biome_hint"));
             return false;
         }
-        if (dim != 0 && !com.example.locatelegacy.locate.BiomeLocator.isBiomeObserved(world, player, target)) {
-            player.addChatMessage(
-                new ChatComponentTranslation("locatelegacy.msg.no_biome_in_dimension", target.biomeName));
-            return false;
-        }
-
         int cx = ((int) player.posX) >> 4;
         int cz = ((int) player.posZ) >> 4;
 
@@ -112,7 +105,11 @@ public class LocateTaskManager {
         LocateTask task = new LocateTask(player, world, LocateTask.Mode.BIOME, displayName, cacheKey);
         task.biomeTarget = target;
 
-        TASKS.put(keyPlayer, task);
+        LocateTask old = TASKS.putIfAbsent(keyPlayer, task);
+        if (old != null) {
+            player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.task_running"));
+            return false;
+        }
 
         player.addChatMessage(new ChatComponentTranslation("locatelegacy.msg.scanning_biome"));
 
@@ -127,7 +124,7 @@ public class LocateTaskManager {
 
     public static void cancel(EntityPlayer player) {
 
-        String keyPlayer = player.getCommandSenderName();
+        String keyPlayer = playerKey(player);
         LocateTask t = TASKS.remove(keyPlayer);
 
         if (t != null) {
@@ -140,6 +137,7 @@ public class LocateTaskManager {
 
     public static void tick() {
 
+        cleanupExpiredCacheIfNeeded();
         if (TASKS.isEmpty()) return;
 
         for (Map.Entry<String, LocateTask> entry : TASKS.entrySet()) {
@@ -154,7 +152,7 @@ public class LocateTaskManager {
                 continue;
             }
 
-            if (task.candidates.size() < 2000 && !task.generating) {
+            if (task.candidates.size() < 2000 && !task.isGenerating()) {
                 task.generateMoreCandidatesAsync();
             }
 
@@ -177,7 +175,7 @@ public class LocateTaskManager {
                 }
             }
 
-            if (task.candidates.isEmpty() && task.spiralRadius > task.maxSpiralRadius && !task.generating) {
+            if (task.candidates.isEmpty() && task.spiralRadius > task.maxSpiralRadius && !task.isGenerating()) {
                 failTask(entry.getKey(), task);
             }
         }
@@ -235,7 +233,52 @@ public class LocateTaskManager {
         int bx = chunkX >> 3;
         int bz = chunkZ >> 3;
 
-        return world.provider.dimensionId + "|" + mode + "|" + query.toLowerCase() + "|" + bx + "|" + bz;
+        return world.provider.dimensionId + "|" + mode + "|" + query.toLowerCase(Locale.ROOT) + "|" + bx + "|" + bz;
+    }
+
+    private static String playerKey(EntityPlayer player) {
+        if (player == null) return "";
+        try {
+            if (player.getUniqueID() != null) return player.getUniqueID()
+                .toString();
+        } catch (Throwable ignored) {}
+        return player.getCommandSenderName();
+    }
+
+    private static BiomeGenBase findBiomeByNameFromObservedList(List<String> observed, String name) {
+        if (observed == null || observed.isEmpty() || name == null) return null;
+
+        String q = name.trim();
+        if (q.length() == 0) return null;
+
+        for (String n : observed) {
+            if (n != null && n.equalsIgnoreCase(q)) {
+                return com.example.locatelegacy.locate.BiomeLocator.findBiomeByNameGlobal(n);
+            }
+        }
+
+        String low = q.toLowerCase();
+        for (String n : observed) {
+            if (n != null && n.toLowerCase()
+                .contains(low)) {
+                return com.example.locatelegacy.locate.BiomeLocator.findBiomeByNameGlobal(n);
+            }
+        }
+
+        return null;
+    }
+
+    private static void cleanupExpiredCacheIfNeeded() {
+        long now = TickHandler.getServerTicks();
+        if (now - lastCacheCleanupTick < CACHE_CLEANUP_INTERVAL_TICKS) return;
+
+        lastCacheCleanupTick = now;
+        for (Map.Entry<String, CacheEntry> entry : CACHE.entrySet()) {
+            CacheEntry ce = entry.getValue();
+            if (ce == null || ce.isExpired(now)) {
+                CACHE.remove(entry.getKey());
+            }
+        }
     }
 
     private static final class CacheEntry {
@@ -250,6 +293,10 @@ public class LocateTaskManager {
 
         boolean isExpired() {
             return TickHandler.getServerTicks() > expireAtTick;
+        }
+
+        boolean isExpired(long nowTick) {
+            return nowTick > expireAtTick;
         }
     }
 }

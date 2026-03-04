@@ -5,11 +5,15 @@ locatelegacy.usage.structure=§6/locate structure <namespace:id>
 locatelegacy.usage.biome=§6/locate biome <name>
 locatelegacy.usage.cancel=§6/locate cancel
 locatelegacy.usage.debug=§6/locate debug structures
+locatelegacy.usage.debug.structures=§6/locate debug structures
+locatelegacy.usage.debug.biome=§6/locate debug biome
 
 locatelegacy.msg.unknown_structure=§cUnknown structure type: §e%s
+locatelegacy.msg.structure_id_format=§cStructure ID must be namespace:id (for example minecraft:village)
+locatelegacy.msg.structure_not_locatable=§cThis structure is not locatable in this dimension: §e%s
 
 locatelegacy.msg.task_running=§cA locate task is already running. Use §e/locate cancel §cto stop it.
-locatelegacy.msg.no_structures_in_dimension=§cNo searchable structure in this dimension: §e%s
+locatelegacy.msg.no_structures_in_dimension=§cNo searchable structures in this dimension: §e%s
 locatelegacy.msg.scanning_structure=§7Scanning nearest structure... (§e/locate cancel§7 to cancel)
 locatelegacy.msg.delayed_busy=§eChunks are generating/loading. Delayed by 2 seconds to avoid lag.
 
@@ -28,3 +32,22 @@ locatelegacy.msg.adjusted_to_land=§7(Adjusted to nearest land)
 
 locatelegacy.msg.distance=§7Distance: §e%s blocks
 locatelegacy.msg.click_to_tp=§7Click to teleport
+
+locatelegacy.debug.scan_start=[LocateLegacy] Debug: scanning MapGenStructure fields...
+locatelegacy.debug.no_mapgen=[LocateLegacy] No MapGenStructure found in this dimension.
+locatelegacy.debug.biome_null=[LocateLegacy] Debug biome: <null>
+locatelegacy.debug.biome_info=[LocateLegacy] Debug biome: name=%s
+locatelegacy.debug.usage=[LocateLegacy] Usage: /locate debug structures | /locate debug biome
+locatelegacy.debug.copy_button=  [Copy JSON]
+locatelegacy.debug.copy_hover=Click to copy structure JSON to clipboard
+locatelegacy.debug.copied=§aCopied to clipboard.
+locatelegacy.debug.copy_failed=§cCopy failed.
+
+locatelegacy.tab.no_structure=No searchable structures in this dimension
+locatelegacy.tab.no_biome=No biome suggestions available yet in this dimension
+
+locatelegacy.debug.learn_usage=[LocateLegacy] Usage: /locate debug learn <namespace:id>
+locatelegacy.debug.learn_no_structure=[LocateLegacy] No nearby generated structure matched current position.
+locatelegacy.debug.learn_save_failed=[LocateLegacy] Failed to save learned profile.
+locatelegacy.debug.clearlearn_ok=[LocateLegacy] Learned temp profiles cleared.
+locatelegacy.debug.clearlearn_failed=[LocateLegacy] Failed to clear learned temp profiles.
