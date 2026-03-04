@@ -80,7 +80,8 @@ public final class LearnProfileManager {
         if (r.biomeNames != null) {
             for (String name : r.biomeNames) {
                 if (name != null) {
-                    String n = name.trim().toLowerCase();
+                    String n = name.trim()
+                        .toLowerCase();
                     if (n.length() > 0) e.biomeWhitelist.add(n);
                 }
             }
@@ -187,7 +188,8 @@ public final class LearnProfileManager {
                         if (be.isJsonPrimitive()) {
                             String n = be.getAsString();
                             if (n != null) {
-                                n = n.trim().toLowerCase();
+                                n = n.trim()
+                                    .toLowerCase();
                                 if (n.length() > 0) e.biomeWhitelist.add(n);
                             }
                         }
@@ -302,7 +304,9 @@ public final class LearnProfileManager {
             sb.append(",\"biomeNameWhitelist\":[");
             for (int i = 0; i < s.biomeWhitelist.size(); i++) {
                 if (i > 0) sb.append(",");
-                sb.append("\"").append(escapeJson(s.biomeWhitelist.get(i))).append("\"");
+                sb.append("\"")
+                    .append(escapeJson(s.biomeWhitelist.get(i)))
+                    .append("\"");
             }
             sb.append("]");
         } else {
@@ -366,7 +370,8 @@ public final class LearnProfileManager {
 
     private static String escapeJson(String s) {
         if (s == null) return "";
-        return s.replace("\\", "\\\\").replace("\"", "\\\"");
+        return s.replace("\\", "\\\\")
+            .replace("\"", "\\\"");
     }
 
     private static final class LearnEntry {

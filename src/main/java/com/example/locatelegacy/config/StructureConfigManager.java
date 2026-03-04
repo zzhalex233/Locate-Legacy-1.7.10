@@ -206,8 +206,11 @@ public final class StructureConfigManager {
                     e.biomeAll = true;
                     return;
                 }
-                if (s != null && s.trim().length() > 0) {
-                    e.biomeNameWhitelist.add(s.trim().toLowerCase());
+                if (s != null && s.trim()
+                    .length() > 0) {
+                    e.biomeNameWhitelist.add(
+                        s.trim()
+                            .toLowerCase());
                 }
                 return;
             } catch (Throwable ignored) {}
@@ -244,7 +247,8 @@ public final class StructureConfigManager {
                     try {
                         String s = x.getAsString();
                         if (s != null) {
-                            s = s.trim().toLowerCase();
+                            s = s.trim()
+                                .toLowerCase();
                             if (s.length() > 0) out.add(s);
                         }
                     } catch (Throwable ignored) {}
@@ -254,7 +258,8 @@ public final class StructureConfigManager {
             try {
                 String s = el.getAsString();
                 if (s != null) {
-                    s = s.trim().toLowerCase();
+                    s = s.trim()
+                        .toLowerCase();
                     if (s.length() > 0) out.add(s);
                 }
             } catch (Throwable ignored) {}

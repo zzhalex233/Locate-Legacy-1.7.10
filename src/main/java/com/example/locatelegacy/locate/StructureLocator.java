@@ -105,12 +105,15 @@ public class StructureLocator {
     private static boolean biomeMatch(StructureDefinition def, BiomeGenBase biome) {
         if (def == null) return true;
         if (biome == null || biome.biomeName == null) return false;
-        String biomeName = biome.biomeName.trim().toLowerCase();
+        String biomeName = biome.biomeName.trim()
+            .toLowerCase();
 
         if (def.biomeNameWhitelist != null && !def.biomeNameWhitelist.isEmpty()) {
             boolean ok = false;
             for (String w : def.biomeNameWhitelist) {
-                if (w != null && biomeName.equals(w.trim().toLowerCase())) {
+                if (w != null && biomeName.equals(
+                    w.trim()
+                        .toLowerCase())) {
                     ok = true;
                     break;
                 }
@@ -124,7 +127,10 @@ public class StructureLocator {
         // blacklist：最后排除
         if (def.biomeNameBlacklist != null && !def.biomeNameBlacklist.isEmpty()) {
             for (String b : def.biomeNameBlacklist) {
-                if (b != null && biomeName.equals(b.trim().toLowerCase())) return false;
+                if (b != null && biomeName.equals(
+                    b.trim()
+                        .toLowerCase()))
+                    return false;
             }
         }
 
@@ -251,8 +257,10 @@ public class StructureLocator {
                 }
             }
         } catch (Throwable t) {
-            LogUtil.warn("Failed occupied-chunk-diameter probing for " + gen.getClass()
-                .getName(), t);
+            LogUtil.warn(
+                "Failed occupied-chunk-diameter probing for " + gen.getClass()
+                    .getName(),
+                t);
         }
         return UNKNOWN;
     }
@@ -484,7 +492,9 @@ public class StructureLocator {
                 int sx = (cx << 4) + 8;
                 int sz = (cz << 4) + 8;
                 BiomeGenBase b = world.getBiomeGenForCoords(sx, sz);
-                if (b != null && b.biomeName != null) biomeSet.add(b.biomeName.trim().toLowerCase());
+                if (b != null && b.biomeName != null) biomeSet.add(
+                    b.biomeName.trim()
+                        .toLowerCase());
                 try {
                     int y = world.getTopSolidOrLiquidBlock(sx, sz);
                     if (minY == null || y < minY.intValue()) minY = Integer.valueOf(y);
@@ -565,8 +575,10 @@ public class StructureLocator {
                 }
             }
         } catch (Throwable t) {
-            LogUtil.warn("Failed to list structure starts for " + gen.getClass()
-                .getName(), t);
+            LogUtil.warn(
+                "Failed to list structure starts for " + gen.getClass()
+                    .getName(),
+                t);
         }
         return out;
     }
@@ -594,7 +606,9 @@ public class StructureLocator {
             sb.append(",\"biomeNameWhitelist\":[");
             for (int i = 0; i < r.biomeNames.size(); i++) {
                 if (i > 0) sb.append(",");
-                sb.append("\"").append(escapeJson(r.biomeNames.get(i))).append("\"");
+                sb.append("\"")
+                    .append(escapeJson(r.biomeNames.get(i)))
+                    .append("\"");
             }
             sb.append("]");
         } else {
@@ -622,7 +636,8 @@ public class StructureLocator {
 
     private static String escapeJson(String s) {
         if (s == null) return "";
-        return s.replace("\\", "\\\\").replace("\"", "\\\"");
+        return s.replace("\\", "\\\\")
+            .replace("\"", "\\\"");
     }
 
     private static String formatBiomeRule(StructureDefinition def) {
@@ -708,7 +723,9 @@ public class StructureLocator {
                 sb.append(",\"biomeNameWhitelist\":[");
                 for (int i = 0; i < def.biomeNameWhitelist.size(); i++) {
                     if (i > 0) sb.append(",");
-                    sb.append("\"").append(escapeJson(def.biomeNameWhitelist.get(i))).append("\"");
+                    sb.append("\"")
+                        .append(escapeJson(def.biomeNameWhitelist.get(i)))
+                        .append("\"");
                 }
                 sb.append("]");
             } else if (def.biomeNameBlacklist != null && !def.biomeNameBlacklist.isEmpty()) {
@@ -716,7 +733,9 @@ public class StructureLocator {
                 sb.append(",\"biomeNameBlacklist\":[");
                 for (int i = 0; i < def.biomeNameBlacklist.size(); i++) {
                     if (i > 0) sb.append(",");
-                    sb.append("\"").append(escapeJson(def.biomeNameBlacklist.get(i))).append("\"");
+                    sb.append("\"")
+                        .append(escapeJson(def.biomeNameBlacklist.get(i)))
+                        .append("\"");
                 }
                 sb.append("]");
             } else if (def.biomeAll) {
